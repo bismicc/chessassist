@@ -1,0 +1,13 @@
+.cat {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    opacity: 0.95;
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+}

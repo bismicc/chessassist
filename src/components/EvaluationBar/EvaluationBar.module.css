@@ -1,0 +1,39 @@
+.bar {
+    position: relative;
+    width: 28px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #141416;
+    box-shadow: inset 0 0 0 1px #303038;
+}
+
+.white {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, #fbfbfb, #e6e6e6);
+    transition: height 0.35s ease;
+}
+
+.label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 5px;
+    z-index: 1;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    pointer-events: none;
+}
+
+.dark {
+    color: #17171a;
+}
+
+.light {
+    color: #f5f5f5;
+    text-shadow: 0 1px 2px #000;
+}

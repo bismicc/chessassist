@@ -1,0 +1,36 @@
+{
+    "name": "chessasist",
+    "private": true,
+    "version": "0.1.0",
+    "scripts": {
+        "dev": "node scripts/copy-engine.mjs && webpack serve --mode development",
+        "build": "node scripts/copy-engine.mjs && tsc --noEmit && webpack --mode production",
+        "check": "tsc --noEmit",
+        "postinstall": "node scripts/copy-engine.mjs"
+    },
+    "dependencies": {
+        "chess.js": "^1.4.0",
+        "react": "^18.3.1",
+        "react-chessboard": "^4.7.2",
+        "react-dom": "^18.3.1",
+        "react-router-dom": "^6.30.1",
+        "stockfish": "17.1.0",
+        "zustand": "^4.5.5"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.26.0",
+        "@babel/preset-env": "^7.26.0",
+        "@babel/preset-react": "^7.26.3",
+        "@babel/preset-typescript": "^7.26.0",
+        "@types/react": "^18.3.3",
+        "@types/react-dom": "^18.3.0",
+        "babel-loader": "^9.2.1",
+        "copy-webpack-plugin": "^12.0.2",
+        "css-loader": "^7.1.2",
+        "style-loader": "^4.0.0",
+        "typescript": "^5.7.2",
+        "webpack": "^5.97.1",
+        "webpack-cli": "^6.0.1",
+        "webpack-dev-server": "^5.2.0"
+    }
+}

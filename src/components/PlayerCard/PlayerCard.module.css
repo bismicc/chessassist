@@ -1,0 +1,21 @@
+.card {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 42px;
+    padding: 0 2px;
+}
+
+.name {
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.elo {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+}

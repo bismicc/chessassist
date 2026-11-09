@@ -1,0 +1,246 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 400px;
+    height: 100%;
+    overflow: hidden;
+    padding: 14px;
+    border: 1px solid #2c2c34;
+    border-radius: 16px;
+    background: #1b1b20;
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 0 0;
+}
+
+.title {
+    margin: 0;
+    color: var(--text);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+
+.toolbar {
+    display: flex;
+    gap: 8px;
+}
+
+.importButton {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    border: 1px solid #33333d;
+    border-radius: 9px;
+    background: #24242b;
+    color: #e7e7ee;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.importButton:hover {
+    border-color: #3d3d49;
+    background: #2a2a32;
+}
+
+.iconButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 40px;
+    border: 1px solid #33333d;
+    border-radius: 9px;
+    background: #24242b;
+    color: #c9c9d4;
+    cursor: pointer;
+}
+
+.iconButton:hover {
+    border-color: #3d3d49;
+    background: #2a2a32;
+    color: #fff;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 2px;
+    color: #8b8b98;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.event {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.result {
+    flex-shrink: 0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #2a2a32;
+    color: #d8d8e0;
+    font-size: 10px;
+}
+
+.depth {
+    margin-left: auto;
+    flex-shrink: 0;
+    color: #6f6f7c;
+}
+
+.variation {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 8px;
+    border: 1px solid #3a3a44;
+    border-radius: 8px;
+    background: #202027;
+}
+
+.variationLabel {
+    flex-shrink: 0;
+    color: #7c7c8a;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.variationMoves {
+    flex: 1;
+    overflow: hidden;
+    color: #d9d9e2;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.backButton {
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 5px;
+    background: #2f7cf6;
+    color: #fff;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.error {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(220, 70, 70, 0.14);
+    color: #ff9b9b;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.movesHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 2px 0;
+}
+
+.movesTitle {
+    color: #a9a9b6;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.analyseButton {
+    border: 1px solid #33333d;
+    border-radius: 7px;
+    background: #24242b;
+    color: #e2e2ea;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.analyseButton:hover {
+    border-color: #3d3d49;
+    background: #2a2a32;
+}
+
+.stopButton {
+    border-color: #6b3030;
+    color: #ffb1b1;
+}
+
+.progressTrack {
+    height: 3px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: #2a2a32;
+}
+
+.progressBar {
+    height: 100%;
+    border-radius: 2px;
+    background: #2f7cf6;
+    transition: width 0.2s ease;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding-top: 8px;
+    border-top: 1px solid #2a2a32;
+}
+
+.navButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 34px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #d3d3dd;
+    cursor: pointer;
+}
+
+.navButton:hover:not(:disabled) {
+    background: #2a2a32;
+}
+
+.navButton:disabled {
+    color: #4a4a55;
+    cursor: default;
+}
+
+.counter {
+    min-width: 54px;
+    color: #8b8b98;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}

@@ -1,0 +1,28 @@
+.app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    min-height: 100vh;
+    padding: 22px;
+}
+
+.boardColumn {
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.panelColumn {
+    flex-shrink: 0;
+}
+
+@media (max-width: 1080px) {
+    .app {
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 16px;
+    }
+}

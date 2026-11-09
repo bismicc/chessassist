@@ -1,0 +1,5 @@
+nodeLinker: hoisted
+ignoreScripts: true
+verifyDepsBeforeRun: false
+onlyBuiltDependencies:
+    - esbuild

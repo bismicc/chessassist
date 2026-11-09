@@ -1,0 +1,31 @@
+.area {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.topPlayer {
+    margin-bottom: 8px;
+}
+
+.bottomPlayer {
+    margin-top: 8px;
+}
+
+.row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.board {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+.board [data-piece] {
+    cursor: pointer !important;
+}
