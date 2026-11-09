@@ -50,6 +50,7 @@ npm run check   # type-check only
 ## Inspiration
 
 Chessasist borrows ideas from novachess.ai (AI coaching and player stats), Chess.com (personalised insights and an opening library), and Lichess (open source and the games database), while aiming to stay free and open source.
+The core framework of the chess analysis board and move classifications are heavily inspired by another open source chess analysis website called Wintrchess (https://github.com/WintrCat/wintrchess)
 
 ## Licence
 
