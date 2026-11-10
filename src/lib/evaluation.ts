@@ -1,4 +1,19 @@
+import { Chess } from "chess.js";
+
 import { Evaluation } from "../types";
+
+export function getTerminalEvaluation(fen: string): Evaluation | undefined {
+    const board = new Chess(fen);
+
+    if (board.isCheckmate()) {
+        return {
+            type: "mate",
+            value: board.turn() == "w" ? -1 : 1
+        };
+    }
+
+    if (board.isGameOver()) return { type: "centipawn", value: 0 };
+}
 
 export function toWhiteShare(evaluation: Evaluation): number {
     if (evaluation.type == "mate") {

@@ -1,22 +1,50 @@
+import { useState } from "react";
+
 import EngineLines from "../EngineLines";
 import MoveList from "../MoveList";
+import OpeningDialog from "../OpeningDialog";
+import WinBar from "../WinBar";
 import {
     FirstIcon, FlipIcon, ImportIcon, LastIcon,
     NextIcon, PreviousIcon, SettingsIcon
 } from "../Icons";
 
-import {
-    classificationImages, classificationLabels, classificationOrder
-} from "../../constants/classifications";
+import { classificationImages } from "../../constants/classifications";
+import { formatGames, formatPercent } from "../../lib/format";
+import { OpeningStats } from "../../lib/openings";
 
 import AnalysisPanelProps from "./AnalysisPanelProps";
 import * as styles from "./AnalysisPanel.module.css";
 
+function OpeningStatsBlock({ stats }: { stats: OpeningStats }) {
+    return <div className={styles.openingStats}>
+        <div className={styles.openingNumbers}>
+            <span>{formatGames(stats.games)} games</span>
+            <span>Avg {Math.round(stats.avgRating)}</span>
+        </div>
+
+        <WinBar
+            white={stats.whiteWin}
+            draw={stats.draw}
+            black={stats.blackWin}
+        />
+
+        <div className={styles.winLabels}>
+            <span>W {formatPercent(stats.whiteWin)}</span>
+            <span>D {formatPercent(stats.draw)}</span>
+            <span>B {formatPercent(stats.blackWin)}</span>
+        </div>
+    </div>;
+}
+
 function AnalysisPanel({
-    game, currentPly, lines, settings, classifications, analysing, progress, error,
-    variationMoves, onImport, onSettings, onFlip, onSelectPly,
-    onExitVariation, onAnalyseGame, onStopAnalysis
+    game, currentPly, lines, settings, classifications, opening, gameOver,
+    analysing, progress, error, variationMoves, variationDepth, canGoBack,
+    canGoForward, onBack, onForward, onStart, onEnd, onImport, onSettings,
+    onFlip, onSelectPly, onPlayBookMove, onPlayLine, onExitVariation,
+    onAnalyseGame, onStopAnalysis
 }: AnalysisPanelProps) {
+    const [ showBook, setShowBook ] = useState(false);
     const lastPly = game.positions.length - 1;
     const result = game.headers.Result || "*";
     const event = game.headers.Event || "Imported game";
@@ -32,11 +60,21 @@ function AnalysisPanel({
                 Import PGN
             </button>
 
-            <button className={styles.iconButton} title="Flip board" onClick={onFlip}>
+            <button
+                className={styles.iconButton}
+                title="Flip board"
+                aria-label="Flip board"
+                onClick={onFlip}
+            >
                 <FlipIcon/>
             </button>
 
-            <button className={styles.iconButton} title="Engine settings" onClick={onSettings}>
+            <button
+                className={styles.iconButton}
+                title="Engine settings"
+                aria-label="Engine settings"
+                onClick={onSettings}
+            >
                 <SettingsIcon/>
             </button>
         </div>
@@ -57,7 +95,56 @@ function AnalysisPanel({
             </button>
         </div>}
 
-        <EngineLines lines={lines} />
+        <EngineLines
+            lines={lines}
+            gameOver={gameOver}
+            onPlayLine={onPlayLine}
+        />
+
+        {(opening.name || opening.bookMoves.length > 0 || opening.stats) && <section className={styles.opening}>
+            <div className={styles.openingHeader}>
+                <span className={styles.openingLabel}>
+                    <img
+                        className={styles.openingIcon}
+                        src={classificationImages.book}
+                        alt=""
+                    />
+                    Opening
+                </span>
+                <span className={styles.openingName}>
+                    {opening.name ?? (currentPly == 0 ? "Starting position" : "Out of book")}
+                </span>
+                {opening.lastKnown && <span className={styles.lastKnown}>last known</span>}
+            </div>
+
+            {opening.stats && <OpeningStatsBlock stats={opening.stats} />}
+
+            {opening.bookMoves.length > 0 && <div className={styles.openingFooter}>
+                <span className={styles.mostPlayed}>
+                    Most played: {opening.bookMoves[0].san}
+                    {opening.bookMoves[0].games
+                        ? ` (${formatGames(opening.bookMoves[0].games)})`
+                        : ""
+                    }
+                </span>
+
+                <button
+                    className={styles.bookButton}
+                    onClick={() => setShowBook(true)}
+                >
+                    Book moves ({opening.bookMoves.length})
+                </button>
+            </div>}
+        </section>}
+
+        {showBook && <OpeningDialog
+            opening={opening}
+            onPlay={move => {
+                onPlayBookMove(move.san);
+                setShowBook(false);
+            }}
+            onClose={() => setShowBook(false)}
+        />}
 
         <div className={styles.movesHeader}>
             <span className={styles.movesTitle}>Moves</span>
@@ -70,7 +157,7 @@ function AnalysisPanel({
                 onClick={analysing ? onStopAnalysis : onAnalyseGame}
             >
                 {analysing
-                    ? `Stop ${progress}/${lastPly}`
+                    ? `Stop ${progress}/${game.positions.length}`
                     : "Analyse game"
                 }
             </button>
@@ -79,22 +166,8 @@ function AnalysisPanel({
         {analysing && <div className={styles.progressTrack}>
             <div
                 className={styles.progressBar}
-                style={{ width: `${(progress / Math.max(1, lastPly)) * 100}%` }}
+                style={{ width: `${(progress / Math.max(1, game.positions.length)) * 100}%` }}
             />
-        </div>}
-
-        {classifications.some(Boolean) && <div className={styles.legend}>
-            {classificationOrder.map(item => <span
-                className={styles.legendItem}
-                key={item}
-            >
-                <img
-                    className={styles.legendIcon}
-                    src={classificationImages[item]}
-                    alt=""
-                />
-                {classificationLabels[item]}
-            </span>)}
         </div>}
 
         <MoveList
@@ -108,8 +181,9 @@ function AnalysisPanel({
             <button
                 className={styles.navButton}
                 title="Start"
-                disabled={currentPly == 0}
-                onClick={() => onSelectPly(0)}
+                aria-label="Start"
+                disabled={!canGoBack}
+                onClick={onStart}
             >
                 <FirstIcon/>
             </button>
@@ -117,19 +191,23 @@ function AnalysisPanel({
             <button
                 className={styles.navButton}
                 title="Previous move"
-                disabled={currentPly == 0}
-                onClick={() => onSelectPly(currentPly - 1)}
+                aria-label="Previous move"
+                disabled={!canGoBack}
+                onClick={onBack}
             >
                 <PreviousIcon/>
             </button>
 
-            <span className={styles.counter}>{currentPly} / {lastPly}</span>
+            <span className={styles.counter}>
+                {currentPly} / {lastPly}{variationDepth ? ` +${variationDepth}` : ""}
+            </span>
 
             <button
                 className={styles.navButton}
                 title="Next move"
-                disabled={currentPly == lastPly}
-                onClick={() => onSelectPly(currentPly + 1)}
+                aria-label="Next move"
+                disabled={!canGoForward}
+                onClick={onForward}
             >
                 <NextIcon/>
             </button>
@@ -137,8 +215,9 @@ function AnalysisPanel({
             <button
                 className={styles.navButton}
                 title="End"
-                disabled={currentPly == lastPly}
-                onClick={() => onSelectPly(lastPly)}
+                aria-label="End"
+                disabled={!canGoForward}
+                onClick={onEnd}
             >
                 <LastIcon/>
             </button>

@@ -4,7 +4,8 @@
     gap: 10px;
     width: 400px;
     height: 100%;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 14px;
     border: 1px solid #2c2c34;
     border-radius: 16px;
@@ -215,26 +216,110 @@
     border-top: 1px solid #2a2a32;
 }
 
-.legend {
+.opening {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 2px;
+    flex-direction: column;
+    gap: 7px;
+    padding: 8px 9px;
+    border: 1px solid #2a2a31;
+    border-radius: 10px;
+    background: #17171b;
 }
 
-.legendItem {
+.openingHeader {
     display: flex;
     align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.openingLabel {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+}
+
+.openingIcon {
+    width: 13px;
+    height: 13px;
+}
+
+.openingName {
+    overflow: hidden;
+    color: #e4e4ea;
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lastKnown {
+    flex-shrink: 0;
+    color: #6f6f7c;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: lowercase;
+}
+
+.openingStats {
+    display: flex;
+    flex-direction: column;
     gap: 4px;
-    color: #8b8b98;
+}
+
+.openingNumbers {
+    display: flex;
+    justify-content: space-between;
+    color: #9a9aa7;
     font-size: 10px;
     font-weight: 700;
 }
 
-.legendIcon {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
+.winLabels {
+    display: flex;
+    justify-content: space-between;
+    color: #777784;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.openingFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.mostPlayed {
+    overflow: hidden;
+    color: #777784;
+    font-size: 9px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bookButton {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    border: 1px solid #33333d;
+    border-radius: 6px;
+    background: #24242b;
+    color: #dcdce5;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.bookButton:hover {
+    background: #2a2a32;
 }
 
 .navButton {

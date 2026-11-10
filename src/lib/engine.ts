@@ -1,5 +1,4 @@
-import { Chess } from "chess.js";
-import { PieceSymbol } from "chess.js";
+import { Chess, PieceSymbol } from "chess.js";
 
 import { EngineLine, Evaluation } from "../types";
 
@@ -7,6 +6,7 @@ interface AnalyseOptions {
     depth: number;
     lines: number;
     hash: number;
+    san?: boolean;
 }
 
 interface AnalyseHandlers {
@@ -25,6 +25,8 @@ export default class Engine {
     private fen = "";
     private generation = 0;
     private handlers?: AnalyseHandlers;
+    private convertSan = true;
+    private updateTimer?: number;
 
     constructor(onError?: (message: string) => void) {
         this.onError = onError;
@@ -47,6 +49,8 @@ export default class Engine {
     ): Promise<EngineLine[]> {
         const generation = ++this.generation;
 
+        this.clearUpdate();
+
         await this.ready;
         if (generation != this.generation) return [];
 
@@ -56,6 +60,7 @@ export default class Engine {
         this.lines.clear();
         this.fen = fen;
         this.handlers = handlers;
+        this.convertSan = options.san ?? true;
 
         this.worker.postMessage(
             `setoption name MultiPV value ${Math.max(1, options.lines)}`
@@ -79,6 +84,7 @@ export default class Engine {
 
     destroy() {
         this.generation++;
+        this.clearUpdate();
         this.worker.postMessage("quit");
         this.worker.terminate();
     }
@@ -118,7 +124,9 @@ export default class Engine {
             value: Number(score[2]) * sign
         };
 
-        const sanMoves = this.toSanMoves(pv);
+        const sanMoves = this.convertSan
+            ? this.getSanMoves(multipv, pv)
+            : [];
 
         this.lines.set(multipv, {
             multipv,
@@ -128,7 +136,17 @@ export default class Engine {
             sanMoves
         });
 
-        this.handlers?.onUpdate?.(this.getLines());
+        this.scheduleUpdate();
+    }
+
+    private getSanMoves(multipv: number, pv: string[]) {
+        const line = this.lines.get(multipv);
+
+        if (line && line.uciMoves.join(" ") == pv.join(" ")) {
+            return line.sanMoves;
+        }
+
+        return this.toSanMoves(pv);
     }
 
     private toSanMoves(uciMoves: string[]): string[] {
@@ -167,12 +185,37 @@ export default class Engine {
     }
 
     private finishSearch() {
+        this.flushUpdate();
         this.searching = false;
 
         const waiters = this.waiters;
         this.waiters = [];
 
         for (const resolve of waiters) resolve();
+    }
+
+    private scheduleUpdate() {
+        if (!this.handlers?.onUpdate || this.updateTimer != undefined) return;
+
+        this.updateTimer = window.setTimeout(() => {
+            this.updateTimer = undefined;
+            this.handlers?.onUpdate?.(this.getLines());
+        }, 60);
+    }
+
+    private flushUpdate() {
+        if (this.updateTimer == undefined) return;
+
+        window.clearTimeout(this.updateTimer);
+        this.updateTimer = undefined;
+        this.handlers?.onUpdate?.(this.getLines());
+    }
+
+    private clearUpdate() {
+        if (this.updateTimer == undefined) return;
+
+        window.clearTimeout(this.updateTimer);
+        this.updateTimer = undefined;
     }
 
     private handleWorkerError = (event: ErrorEvent) => {

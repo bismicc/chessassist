@@ -1,11 +1,15 @@
 import { useState } from "react";
 
+import useEscapeClose from "../../hooks/useEscapeClose";
+
 import ImportDialogProps from "./ImportDialogProps";
 import * as styles from "./ImportDialog.module.css";
 
 function ImportDialog({ onImport, onClose }: ImportDialogProps) {
     const [ pgn, setPgn ] = useState("");
     const [ error, setError ] = useState("");
+
+    useEscapeClose(onClose);
 
     function submit() {
         const problem = onImport(pgn);
@@ -18,9 +22,16 @@ function ImportDialog({ onImport, onClose }: ImportDialogProps) {
             if (event.target == event.currentTarget) onClose();
         }}
     >
-        <div className={styles.dialog}>
+        <div
+            className={styles.dialog}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="import-game-title"
+        >
             <div className={styles.header}>
-                <h2 className={styles.title}>Import a game</h2>
+                <h2 className={styles.title} id="import-game-title">
+                    Import a game
+                </h2>
             </div>
 
             <p className={styles.hint}>

@@ -10,6 +10,8 @@ import { classificationColours, classificationImages } from "../../constants/cla
 import BoardAreaProps from "./BoardAreaProps";
 import * as styles from "./BoardArea.module.css";
 
+const NO_ARROWS: Arrow[] = [];
+
 function classificationIconStyle(
     square: Square, flipped: boolean, boardSize: number
 ) {
@@ -31,13 +33,8 @@ function BoardArea({
 }: BoardAreaProps) {
     const [ selected, setSelected ] = useState<Square>();
     const [ highlights, setHighlights ] = useState<Square[]>([]);
-    const [ annotationVersion, setAnnotationVersion ] = useState(0);
 
     const game = useMemo(() => new Chess(position.fen), [ position.fen ]);
-
-    const customArrows = useMemo<Arrow[]>(() => [], [
-        annotationVersion, position.fen
-    ]);
 
     const moveTargets = useMemo(() => {
         if (!selected) return [];
@@ -48,12 +45,10 @@ function BoardArea({
     useEffect(() => {
         setSelected(undefined);
         setHighlights([]);
-        setAnnotationVersion(version => version + 1);
     }, [ position.fen ]);
 
     function clearAnnotations() {
         setHighlights([]);
-        setAnnotationVersion(version => version + 1);
     }
 
     function toggleHighlight(square: Square) {
@@ -79,7 +74,12 @@ function BoardArea({
     function onSquareClick(square: Square) {
         clearAnnotations();
 
-        if (game.get(square)) return;
+        const piece = game.get(square);
+
+        if (piece && piece.color == game.turn()) {
+            setSelected(square);
+            return;
+        }
 
         if (selected && tryMove(selected, square)) {
             setSelected(undefined);
@@ -175,7 +175,7 @@ function BoardArea({
                     boardOrientation={flipped ? "black" : "white"}
                     arePiecesDraggable={true}
                     areArrowsAllowed={true}
-                    customArrows={customArrows}
+                    customArrows={NO_ARROWS}
                     animationDuration={150}
                     customBoardStyle={{ cursor: "pointer" }}
                     onSquareClick={onSquareClick}

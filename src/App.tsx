@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Move } from "chess.js";
+import { useEffect, useMemo, useState } from "react";
+import { Chess, Move } from "chess.js";
 import { Square } from "react-chessboard/dist/chessboard/types";
 
 import AnalysisPanel from "./components/AnalysisPanel";
@@ -10,15 +10,26 @@ import SettingsDialog from "./components/SettingsDialog";
 
 import useBoardSize from "./hooks/useBoardSize";
 import useEngine from "./hooks/useEngine";
+import useGameAnalysis from "./hooks/useGameAnalysis";
 
 import useSettingsStore from "./stores/SettingsStore";
 
 import { getPlayers, parsePgn, samplePgn } from "./lib/pgn";
-import { classifyMove } from "./lib/classify";
+import { parseUci, toUci } from "./lib/chess";
+import { getTerminalEvaluation } from "./lib/evaluation";
+import {
+    getOpeningContext, getOpeningEco, getOpeningName
+} from "./lib/openings";
 import { playMoveSound } from "./lib/sounds";
-import { EngineLine, Evaluation, GameData, MoveClassification, Position } from "./types";
+import { EngineLine, Evaluation, GameData, Position } from "./types";
 
 import * as styles from "./App.module.css";
+
+interface Variation {
+    rootPly: number;
+    positions: Position[];
+    index: number;
+}
 
 function App() {
     const [ game, setGame ] = useState<GameData>(() => parsePgn(samplePgn));
@@ -26,13 +37,9 @@ function App() {
     const [ flipped, setFlipped ] = useState(false);
     const [ lines, setLines ] = useState<EngineLine[]>([]);
     const [ liveEvaluation, setLiveEvaluation ] = useState<Evaluation>();
-    const [ storedEvaluations, setStoredEvaluations ] = useState<(Evaluation | undefined)[]>([]);
-    const [ classifications, setClassifications ] = useState<(MoveClassification | undefined)[]>([]);
-    const [ analysing, setAnalysing ] = useState(false);
-    const [ progress, setProgress ] = useState(0);
     const [ showSettings, setShowSettings ] = useState(false);
     const [ showImport, setShowImport ] = useState(false);
-    const [ variation, setVariation ] = useState<Position[]>();
+    const [ variation, setVariation ] = useState<Variation>();
 
     const { engineRef, error } = useEngine();
     const boardSize = useBoardSize(410);
@@ -40,25 +47,105 @@ function App() {
     const settings = useSettingsStore(state => state.settings);
     const setSettings = useSettingsStore(state => state.setSettings);
 
-    const batchRunning = useRef(false);
-    const stopRequested = useRef(false);
-    const analysisRun = useRef(0);
+    const {
+        analysing, progress, storedEvaluations, classifications, batchRunning,
+        analyseGame, stopAnalysis, resetAnalysis
+    } = useGameAnalysis({
+        engineRef,
+        positions: game.positions,
+        settings
+    });
 
     const basePosition = game.positions[Math.min(currentPly, game.positions.length - 1)];
-    const position = variation?.at(-1) ?? basePosition;
-    const players = getPlayers(game);
+    const variationIndex = variation?.index ?? 0;
+    const variationPosition = variation && variationIndex > 0
+        ? variation.positions[variationIndex - 1]
+        : undefined;
+    const position = variationPosition ?? basePosition;
+    const players = useMemo(() => getPlayers(game), [ game ]);
 
-    const evaluation = variation
-        ? liveEvaluation
-        : storedEvaluations[currentPly] ?? liveEvaluation;
+    const gameOver = useMemo(() => (
+        new Chess(position.fen).isGameOver()
+    ), [ position.fen ]);
+
+    const terminalEvaluation = useMemo(() => (
+        gameOver ? getTerminalEvaluation(position.fen) : undefined
+    ), [ gameOver, position.fen ]);
+
+    const evaluation = gameOver
+        ? terminalEvaluation
+        : variation
+            ? liveEvaluation
+            : storedEvaluations[currentPly] ?? liveEvaluation;
 
     const currentClassification = variation
         ? undefined
         : classifications[currentPly];
 
+    const history = useMemo(() => {
+        const rootPly = variation?.rootPly ?? currentPly;
+        const mainline = game.positions
+            .slice(1, rootPly + 1)
+            .map(item => item.uci ?? "");
+
+        if (!variation) return mainline;
+
+        return [
+            ...mainline,
+            ...variation.positions
+                .slice(0, variation.index)
+                .map(item => item.uci ?? "")
+        ];
+    }, [ game.positions, currentPly, variation ]);
+
+    const opening = useMemo(() => (
+        getOpeningContext(position.fen, history)
+    ), [ position.fen, history ]);
+
+    const linePositions = useMemo(() => (
+        variation
+            ? [
+                ...game.positions.slice(0, variation.rootPly + 1),
+                ...variation.positions.slice(0, variation.index)
+            ]
+            : game.positions.slice(0, currentPly + 1)
+    ), [ game.positions, currentPly, variation ]);
+
+    const openingWithHistory = useMemo(() => {
+        if (opening.name) return opening;
+
+        for (let index = linePositions.length - 1; index >= 0; index--) {
+            const name = getOpeningName(linePositions[index].fen);
+            if (!name) continue;
+
+            return {
+                ...opening,
+                name,
+                eco: getOpeningEco(name),
+                lastKnown: true
+            };
+        }
+
+        return opening;
+    }, [ opening, linePositions ]);
+
+    const canGoBack = variation
+        ? variation.index > 0 || variation.rootPly > 0
+        : currentPly > 0;
+
+    const canGoForward = variation
+        ? variation.index < variation.positions.length
+        : currentPly < game.positions.length - 1;
+
     useEffect(() => {
         const engine = engineRef.current;
         if (!engine || analysing) return;
+
+        if (gameOver) {
+            setLines([]);
+            setLiveEvaluation(getTerminalEvaluation(position.fen));
+            return;
+        }
 
         let active = true;
 
@@ -84,7 +171,7 @@ function App() {
             active = false;
             if (!batchRunning.current) engine.stop();
         };
-    }, [ engineRef, position.fen, settings, analysing ]);
+    }, [ engineRef, position.fen, settings, analysing, gameOver ]);
 
     useEffect(() => {
         function onKeyDown(event: KeyboardEvent) {
@@ -95,111 +182,31 @@ function App() {
                 if (tag == "INPUT" || tag == "TEXTAREA" || tag == "SELECT") return;
             }
 
-            const lastPly = game.positions.length - 1;
-
             if (event.key == "ArrowLeft") {
                 event.preventDefault();
-                setVariation(undefined);
-                setCurrentPly(ply => Math.max(0, ply - 1));
+                goBack();
             }
 
             if (event.key == "ArrowRight") {
                 event.preventDefault();
-                setVariation(undefined);
-                setCurrentPly(ply => Math.min(lastPly, ply + 1));
+                goForward();
             }
 
             if (event.key == "Home") {
                 event.preventDefault();
-                setVariation(undefined);
-                setCurrentPly(0);
+                goStart();
             }
 
             if (event.key == "End") {
                 event.preventDefault();
-                setVariation(undefined);
-                setCurrentPly(lastPly);
+                goEnd();
             }
         }
 
         window.addEventListener("keydown", onKeyDown);
 
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [ game.positions.length ]);
-
-    async function analyseGame() {
-        const engine = engineRef.current;
-        if (!engine || analysing) return;
-
-        const run = ++analysisRun.current;
-
-        batchRunning.current = true;
-        stopRequested.current = false;
-
-        setAnalysing(true);
-        setProgress(0);
-        setClassifications([]);
-
-        const evaluations: (Evaluation | undefined)[] = new Array(game.positions.length);
-        const bestMoves: (string | undefined)[] = new Array(game.positions.length);
-        setStoredEvaluations([ ...evaluations ]);
-
-        for (let ply = 0; ply < game.positions.length; ply++) {
-            if (stopRequested.current || run != analysisRun.current) break;
-
-            const engineLines = await engine.analyse(game.positions[ply].fen, {
-                depth: settings.depth,
-                lines: 1,
-                hash: settings.hash
-            });
-
-            if (run != analysisRun.current) return;
-
-            evaluations[ply] = engineLines[0]?.evaluation;
-            bestMoves[ply] = engineLines[0]?.sanMoves[0];
-            setStoredEvaluations([ ...evaluations ]);
-            setProgress(ply + 1);
-        }
-
-        batchRunning.current = false;
-
-        if (run != analysisRun.current) return;
-
-        const classified: (MoveClassification | undefined)[] = new Array(
-            game.positions.length
-        );
-
-        for (let ply = 1; ply < game.positions.length; ply++) {
-            const san = game.positions[ply].san ?? "";
-
-            if (san.endsWith("#")) {
-                classified[ply] = { classification: "best", pointLoss: 0 };
-                continue;
-            }
-
-            classified[ply] = classifyMove(
-                evaluations[ply - 1],
-                evaluations[ply],
-                san,
-                bestMoves[ply - 1],
-                game.positions[ply].colour
-            );
-        }
-
-        setClassifications(classified);
-        setAnalysing(false);
-        setProgress(0);
-    }
-
-    function stopGameAnalysis() {
-        stopRequested.current = true;
-        analysisRun.current++;
-        batchRunning.current = false;
-
-        engineRef.current?.stop();
-        setAnalysing(false);
-        setProgress(0);
-    }
+    }, [ game.positions.length, currentPly, variation ]);
 
     function handleImport(pgn: string) {
         let next: GameData;
@@ -212,16 +219,8 @@ function App() {
                 : "Could not read that PGN";
         }
 
-        analysisRun.current++;
-        stopRequested.current = true;
-        batchRunning.current = false;
+        resetAnalysis();
 
-        engineRef.current?.stop();
-
-        setAnalysing(false);
-        setProgress(0);
-        setStoredEvaluations([]);
-        setClassifications([]);
         setVariation(undefined);
         setGame(next);
         setCurrentPly(0);
@@ -235,22 +234,86 @@ function App() {
         setCurrentPly(Math.max(0, Math.min(game.positions.length - 1, ply)));
     }
 
-    function playMove(move: Move) {
-        playMoveSound(move);
+    function goBack() {
+        if (variation && variation.index > 0) {
+            setVariation({ ...variation, index: variation.index - 1 });
+            return;
+        }
 
+        const rootPly = variation?.rootPly ?? currentPly;
+
+        setVariation(undefined);
+        setCurrentPly(Math.max(0, rootPly - 1));
+    }
+
+    function goForward() {
+        if (variation) {
+            if (variation.index < variation.positions.length) {
+                setVariation({ ...variation, index: variation.index + 1 });
+            }
+
+            return;
+        }
+
+        setCurrentPly(ply => Math.min(game.positions.length - 1, ply + 1));
+    }
+
+    function goStart() {
+        setVariation(undefined);
+        setCurrentPly(0);
+    }
+
+    function goEnd() {
+        if (variation) {
+            setVariation({ ...variation, index: variation.positions.length });
+            return;
+        }
+
+        setCurrentPly(game.positions.length - 1);
+    }
+
+    function appendMove(move: Move) {
         const next: Position = {
             fen: move.after,
             san: move.san,
+            uci: toUci(move),
             from: move.from as Square,
             to: move.to as Square,
             moveNumber: Number(move.before.split(" ")[5]) || 1,
             colour: move.color
         };
 
-        setVariation(current => current
-            ? [ ...current, next ]
-            : [ next ]
-        );
+        setVariation(current => {
+            if (!current) {
+                return { rootPly: currentPly, positions: [ next ], index: 1 };
+            }
+
+            const positions = [
+                ...current.positions.slice(0, current.index),
+                next
+            ];
+
+            return { ...current, positions, index: positions.length };
+        });
+    }
+
+    function playMove(move: Move) {
+        playMoveSound(move);
+        appendMove(move);
+    }
+
+    function playEngineLine(line: EngineLine) {
+        const move = parseUci(position.fen, line.uciMoves[0]);
+        if (move) playMove(move);
+    }
+
+    function playBookMove(san: string) {
+        try {
+            const board = new Chess(position.fen);
+            playMove(board.move(san));
+        } catch {
+            return;
+        }
     }
 
     return <>
@@ -280,14 +343,27 @@ function App() {
                     analysing={analysing}
                     progress={progress}
                     error={error}
-                    variationMoves={variation?.map(item => item.san ?? "") ?? []}
+                    opening={openingWithHistory}
+                    gameOver={gameOver}
+                    variationMoves={variation?.positions
+                        .slice(0, variation.index)
+                        .map(item => item.san ?? "") ?? []}
+                    variationDepth={variation?.index}
                     onImport={() => setShowImport(true)}
                     onSettings={() => setShowSettings(true)}
                     onFlip={() => setFlipped(value => !value)}
+                    canGoBack={canGoBack}
+                    canGoForward={canGoForward}
+                    onBack={goBack}
+                    onForward={goForward}
+                    onStart={goStart}
+                    onEnd={goEnd}
                     onSelectPly={selectPly}
+                    onPlayBookMove={playBookMove}
+                    onPlayLine={playEngineLine}
                     onExitVariation={() => setVariation(undefined)}
                     onAnalyseGame={analyseGame}
-                    onStopAnalysis={stopGameAnalysis}
+                    onStopAnalysis={stopAnalysis}
                 />
             </div>
 

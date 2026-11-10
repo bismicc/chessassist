@@ -1,7 +1,7 @@
 const { resolve } = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 
-module.exports = {
+module.exports = (env, argv) => ({
     entry: {
         analysis: "./src/index.tsx"
     },
@@ -60,5 +60,5 @@ module.exports = {
             writeToDisk: true
         }
     },
-    devtool: "eval-source-map"
-};
+    devtool: argv.mode == "production" ? false : "eval-source-map"
+});

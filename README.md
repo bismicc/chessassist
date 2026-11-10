@@ -22,7 +22,9 @@ The first slice is the game analysis page needed to feed all of the above:
 - PGN import with player names, ratings, result, and a clickable move list
 - Stockfish 17 (WASM) evaluation in a Web Worker, with configurable depth, engine lines, and hash size
 - Evaluation bar, engine lines, and move navigation
-- Move classification for best, good, mistake, and blunder moves after a full-game analysis
+- Click a Stockfish line to play the first move of that line on the board
+- Move classification for book, brilliant, best, great, good, mistake, and blunder moves after a full-game analysis
+- Opening panel with the opening name, game counts, win rates, average rating, and a full book-move table with move share, results, and ratings
 - Interactive board: play moves, explore variations, right-click to highlight, right-click-drag to draw arrows
 - Move, capture, castle, promotion, check, and game-end sounds
 
@@ -48,10 +50,18 @@ npm run check   # type-check only
 
 `npm run dev` and `npm run build` copy the pinned Stockfish build from `node_modules/stockfish/src` into `public/engines` before bundling.
 
+## Data
+
+Opening names and book positions come from WintrChess's `openings.json`.
+
+Great and Brilliant classification use MultiPV 2 plus sacrifice and material-safety checks; Brilliant requires the engine's best move to leave a new piece en prise for less material than it is worth, while still holding the evaluation.
+
+Opening statistics come from the **Chess Multiverse Opening Intelligence Database (20M Lichess subset)** by Sparsh Varshney, licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), DOI [10.5281/zenodo.19307100](https://doi.org/10.5281/zenodo.19307100). This app aggregates those lines into a position index; the generated statistics index is shared under the same licence.
+
 ## Inspiration
 
 Chessasist borrows ideas from novachess.ai (AI coaching and player stats), Chess.com (personalised insights and an opening library), and Lichess (open source and the games database), while aiming to stay free and open source.
-The core framework of the chess analysis board and move classifications are heavily inspired by another open source chess analysis website called Wintrchess (https://github.com/WintrCat/wintrchess)
+The core framework of the chess analysis board, the board sounds, and the named-openings database are taken from another open source chess analysis website called WintrChess (https://github.com/WintrCat/wintrchess).
 
 ## Licence
 

@@ -1,7 +1,7 @@
 import { Chess } from "chess.js";
-import { Square } from "react-chessboard/dist/chessboard/types";
 
 import { GameData, PlayerInfo, Position } from "../types";
+import { toUci } from "./chess";
 
 export const startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -39,8 +39,9 @@ export function parsePgn(pgn: string): GameData {
         positions.push({
             fen: move.after,
             san: move.san,
-            from: move.from as Square,
-            to: move.to as Square,
+            uci: toUci(move),
+            from: move.from,
+            to: move.to,
             moveNumber: Number(move.before.split(" ")[5]) || 1,
             colour: move.color
         });

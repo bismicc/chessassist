@@ -38,6 +38,19 @@
     display: flex;
     align-items: flex-start;
     gap: 9px;
+    width: 100%;
+    padding: 4px 6px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.line:hover {
+    background: #24242b;
 }
 
 .evaluation {

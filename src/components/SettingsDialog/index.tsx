@@ -1,16 +1,27 @@
+import useEscapeClose from "../../hooks/useEscapeClose";
+
 import SettingsDialogProps from "./SettingsDialogProps";
 import * as styles from "./SettingsDialog.module.css";
 
 function SettingsDialog({ settings, onChange, onClose }: SettingsDialogProps) {
+    useEscapeClose(onClose);
+
     return <div
         className={styles.backdrop}
         onPointerDown={event => {
             if (event.target == event.currentTarget) onClose();
         }}
     >
-        <div className={styles.dialog}>
+        <div
+            className={styles.dialog}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="stockfish-settings-title"
+        >
             <div className={styles.header}>
-                <h2 className={styles.title}>Stockfish settings</h2>
+                <h2 className={styles.title} id="stockfish-settings-title">
+                    Stockfish settings
+                </h2>
                 <button className={styles.done} onClick={onClose}>Done</button>
             </div>
 

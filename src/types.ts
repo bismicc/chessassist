@@ -10,6 +10,7 @@ export interface PlayerInfo {
 export interface Position {
     fen: string;
     san?: string;
+    uci?: string;
     from?: Square;
     to?: Square;
     moveNumber: number;
@@ -28,7 +29,8 @@ export interface Evaluation {
     value: number;
 }
 
-export type Classification = "best" | "good" | "mistake" | "blunder";
+export type Classification =
+    "book" | "best" | "great" | "brilliant" | "good" | "mistake" | "blunder";
 
 export interface MoveClassification {
     classification: Classification;
