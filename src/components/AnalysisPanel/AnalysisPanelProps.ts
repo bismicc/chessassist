@@ -1,10 +1,13 @@
-import { EngineLine, EngineSettings, GameData } from "../../types";
+import {
+    EngineLine, EngineSettings, GameData, MoveClassification
+} from "../../types";
 
 export default interface AnalysisPanelProps {
     game: GameData;
     currentPly: number;
     lines: EngineLine[];
     settings: EngineSettings;
+    classifications: (MoveClassification | undefined)[];
     analysing: boolean;
     progress: number;
     error: string;

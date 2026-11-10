@@ -5,11 +5,15 @@ import {
     NextIcon, PreviousIcon, SettingsIcon
 } from "../Icons";
 
+import {
+    classificationImages, classificationLabels, classificationOrder
+} from "../../constants/classifications";
+
 import AnalysisPanelProps from "./AnalysisPanelProps";
 import * as styles from "./AnalysisPanel.module.css";
 
 function AnalysisPanel({
-    game, currentPly, lines, settings, analysing, progress, error,
+    game, currentPly, lines, settings, classifications, analysing, progress, error,
     variationMoves, onImport, onSettings, onFlip, onSelectPly,
     onExitVariation, onAnalyseGame, onStopAnalysis
 }: AnalysisPanelProps) {
@@ -79,9 +83,24 @@ function AnalysisPanel({
             />
         </div>}
 
+        {classifications.some(Boolean) && <div className={styles.legend}>
+            {classificationOrder.map(item => <span
+                className={styles.legendItem}
+                key={item}
+            >
+                <img
+                    className={styles.legendIcon}
+                    src={classificationImages[item]}
+                    alt=""
+                />
+                {classificationLabels[item]}
+            </span>)}
+        </div>}
+
         <MoveList
             positions={game.positions}
             currentPly={currentPly}
+            classifications={classifications}
             onSelect={onSelectPly}
         />
 

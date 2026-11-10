@@ -14,8 +14,9 @@ import useEngine from "./hooks/useEngine";
 import useSettingsStore from "./stores/SettingsStore";
 
 import { getPlayers, parsePgn, samplePgn } from "./lib/pgn";
+import { classifyMove } from "./lib/classify";
 import { playMoveSound } from "./lib/sounds";
-import { EngineLine, Evaluation, GameData, Position } from "./types";
+import { EngineLine, Evaluation, GameData, MoveClassification, Position } from "./types";
 
 import * as styles from "./App.module.css";
 
@@ -26,6 +27,7 @@ function App() {
     const [ lines, setLines ] = useState<EngineLine[]>([]);
     const [ liveEvaluation, setLiveEvaluation ] = useState<Evaluation>();
     const [ storedEvaluations, setStoredEvaluations ] = useState<(Evaluation | undefined)[]>([]);
+    const [ classifications, setClassifications ] = useState<(MoveClassification | undefined)[]>([]);
     const [ analysing, setAnalysing ] = useState(false);
     const [ progress, setProgress ] = useState(0);
     const [ showSettings, setShowSettings ] = useState(false);
@@ -49,6 +51,10 @@ function App() {
     const evaluation = variation
         ? liveEvaluation
         : storedEvaluations[currentPly] ?? liveEvaluation;
+
+    const currentClassification = variation
+        ? undefined
+        : classifications[currentPly];
 
     useEffect(() => {
         const engine = engineRef.current;
@@ -132,8 +138,10 @@ function App() {
 
         setAnalysing(true);
         setProgress(0);
+        setClassifications([]);
 
         const evaluations: (Evaluation | undefined)[] = new Array(game.positions.length);
+        const bestMoves: (string | undefined)[] = new Array(game.positions.length);
         setStoredEvaluations([ ...evaluations ]);
 
         for (let ply = 0; ply < game.positions.length; ply++) {
@@ -148,6 +156,7 @@ function App() {
             if (run != analysisRun.current) return;
 
             evaluations[ply] = engineLines[0]?.evaluation;
+            bestMoves[ply] = engineLines[0]?.sanMoves[0];
             setStoredEvaluations([ ...evaluations ]);
             setProgress(ply + 1);
         }
@@ -156,6 +165,28 @@ function App() {
 
         if (run != analysisRun.current) return;
 
+        const classified: (MoveClassification | undefined)[] = new Array(
+            game.positions.length
+        );
+
+        for (let ply = 1; ply < game.positions.length; ply++) {
+            const san = game.positions[ply].san ?? "";
+
+            if (san.endsWith("#")) {
+                classified[ply] = { classification: "best", pointLoss: 0 };
+                continue;
+            }
+
+            classified[ply] = classifyMove(
+                evaluations[ply - 1],
+                evaluations[ply],
+                san,
+                bestMoves[ply - 1],
+                game.positions[ply].colour
+            );
+        }
+
+        setClassifications(classified);
         setAnalysing(false);
         setProgress(0);
     }
@@ -190,6 +221,7 @@ function App() {
         setAnalysing(false);
         setProgress(0);
         setStoredEvaluations([]);
+        setClassifications([]);
         setVariation(undefined);
         setGame(next);
         setCurrentPly(0);
@@ -232,6 +264,7 @@ function App() {
                     black={players.black}
                     flipped={flipped}
                     evaluation={evaluation}
+                    classification={currentClassification}
                     size={boardSize}
                     onMove={playMove}
                 />
@@ -243,6 +276,7 @@ function App() {
                     currentPly={currentPly}
                     lines={lines}
                     settings={settings}
+                    classifications={classifications}
                     analysing={analysing}
                     progress={progress}
                     error={error}

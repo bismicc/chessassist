@@ -28,6 +28,13 @@ export interface Evaluation {
     value: number;
 }
 
+export type Classification = "best" | "good" | "mistake" | "blunder";
+
+export interface MoveClassification {
+    classification: Classification;
+    pointLoss: number;
+}
+
 export interface EngineLine {
     multipv: number;
     depth: number;

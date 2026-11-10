@@ -1,5 +1,8 @@
 import { useEffect, useRef } from "react";
 
+import {
+    classificationImages, classificationLabels
+} from "../../constants/classifications";
 import { Position } from "../../types";
 
 import MoveListProps from "./MoveListProps";
@@ -16,7 +19,7 @@ interface MoveRow {
     black?: MoveCell;
 }
 
-function MoveList({ positions, currentPly, onSelect }: MoveListProps) {
+function MoveList({ positions, currentPly, classifications, onSelect }: MoveListProps) {
     const listRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -54,6 +57,12 @@ function MoveList({ positions, currentPly, onSelect }: MoveListProps) {
         {rows.map(row => {
             const white = row.white;
             const black = row.black;
+            const whiteClassification = white
+                ? classifications[white.ply]
+                : undefined;
+            const blackClassification = black
+                ? classifications[black.ply]
+                : undefined;
 
             return <div className={styles.row} key={`${row.number}-${white?.ply ?? "b"}`}>
                 <span className={styles.number}>{row.number}.</span>
@@ -64,6 +73,17 @@ function MoveList({ positions, currentPly, onSelect }: MoveListProps) {
                         data-ply={white.ply}
                         onClick={() => onSelect(white.ply)}
                     >
+                        {whiteClassification && <img
+                            className={styles.classification}
+                            src={classificationImages[
+                                whiteClassification.classification
+                            ]}
+                            alt=""
+                            title={classificationLabels[
+                                whiteClassification.classification
+                            ]}
+                        />}
+
                         {white.position.san}
                     </button>
                     : <span className={styles.move} />
@@ -75,6 +95,17 @@ function MoveList({ positions, currentPly, onSelect }: MoveListProps) {
                         data-ply={black.ply}
                         onClick={() => onSelect(black.ply)}
                     >
+                        {blackClassification && <img
+                            className={styles.classification}
+                            src={classificationImages[
+                                blackClassification.classification
+                            ]}
+                            alt=""
+                            title={classificationLabels[
+                                blackClassification.classification
+                            ]}
+                        />}
+
                         {black.position.san}
                     </button>
                     : <span className={styles.move} />

@@ -22,6 +22,7 @@ The first slice is the game analysis page needed to feed all of the above:
 - PGN import with player names, ratings, result, and a clickable move list
 - Stockfish 17 (WASM) evaluation in a Web Worker, with configurable depth, engine lines, and hash size
 - Evaluation bar, engine lines, and move navigation
+- Move classification for best, good, mistake, and blunder moves after a full-game analysis
 - Interactive board: play moves, explore variations, right-click to highlight, right-click-drag to draw arrows
 - Move, capture, castle, promotion, check, and game-end sounds
 

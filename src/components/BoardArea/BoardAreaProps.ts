@@ -1,6 +1,6 @@
 import { Move } from "chess.js";
 
-import { Evaluation, PlayerInfo, Position } from "../../types";
+import { Evaluation, MoveClassification, PlayerInfo, Position } from "../../types";
 
 export default interface BoardAreaProps {
     position: Position;
@@ -8,6 +8,7 @@ export default interface BoardAreaProps {
     black: PlayerInfo;
     flipped: boolean;
     evaluation?: Evaluation;
+    classification?: MoveClassification;
     size: number;
     onMove: (move: Move) => void;
 }

@@ -6,11 +6,28 @@ import { Arrow, CustomSquareStyles, Square } from "react-chessboard/dist/chessbo
 import EvaluationBar from "../EvaluationBar";
 import PlayerCard from "../PlayerCard";
 
+import { classificationColours, classificationImages } from "../../constants/classifications";
 import BoardAreaProps from "./BoardAreaProps";
 import * as styles from "./BoardArea.module.css";
 
+function classificationIconStyle(
+    square: Square, flipped: boolean, boardSize: number
+) {
+    const file = square.charCodeAt(0) - 97;
+    const rank = Number(square[1]) - 1;
+    const x = flipped ? 7 - file : file;
+    const y = flipped ? rank : 7 - rank;
+    const squareSize = boardSize / 8;
+
+    return {
+        left: (x + 0.66) * squareSize,
+        top: (y + 0.04) * squareSize,
+        width: squareSize * 0.3
+    };
+}
+
 function BoardArea({
-    position, white, black, flipped, evaluation, size, onMove
+    position, white, black, flipped, evaluation, classification, size, onMove
 }: BoardAreaProps) {
     const [ selected, setSelected ] = useState<Square>();
     const [ highlights, setHighlights ] = useState<Square[]>([]);
@@ -104,7 +121,10 @@ function BoardArea({
     const squareStyles: CustomSquareStyles = {};
 
     if (position.from && position.to) {
-        const playedStyle = { backgroundColor: "rgba(255, 255, 51, 0.5)" };
+        const highlightColour = classification
+            ? classificationColours[classification.classification]
+            : "#ffff33";
+        const playedStyle = { backgroundColor: `${highlightColour}80` };
 
         squareStyles[position.from] = playedStyle;
         squareStyles[position.to] = playedStyle;
@@ -174,6 +194,13 @@ function BoardArea({
                     }}
                     customSquareStyles={squareStyles}
                 />
+
+                {classification && position.to && <img
+                    className={styles.classificationIcon}
+                    src={classificationImages[classification.classification]}
+                    alt=""
+                    style={classificationIconStyle(position.to, flipped, size)}
+                />}
             </div>
         </div>
 
