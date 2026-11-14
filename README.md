@@ -27,8 +27,9 @@ The first slice is the game analysis page needed to feed all of the above:
 - Opening panel with the opening name, game counts, win rates, average rating, and a full book-move table with move share, results, and ratings
 - Interactive board: play moves, explore variations, right-click to highlight, right-click-drag to draw arrows
 - Move, capture, castle, promotion, check, and game-end sounds
+- AI coach with board, Stockfish, threat, opening, Lichess, tablebase, and Wikipedia tools, plus chat follow-ups
 
-Everything runs client-side. There is no backend, account system, game-history import, or AI coach yet.
+Everything runs client-side. There is no backend or account system. The coach uses your own API key and talks to the provider directly from the browser.
 
 ## Stack
 
@@ -49,6 +50,32 @@ npm run check   # type-check only
 ```
 
 `npm run dev` and `npm run build` copy the pinned Stockfish build from `node_modules/stockfish/src` into `public/engines` before bundling.
+
+## AI coach
+
+The coach is bring-your-own-key. Pick a provider in Coach settings, paste a key, and choose a model. Keys are stored in this browser's local storage and sent only to the provider. Game data and questions go to that provider when you use the coach. The coach sits in a right-hand sidebar next to the board and move list.
+
+Supported providers:
+
+- OpenRouter (recommended, covers most models through one key)
+- Anthropic, OpenAI, Google Gemini
+- DeepSeek, Groq, Mistral, xAI, Together
+- Ollama and any custom OpenAI-compatible endpoint
+
+There are four modes:
+
+- **Ask** - only explains when you send a message
+- **Key** - analyses the game, then explains the opening and each key moment in a position-by-position review
+- **Brief** - one line for every move
+- **Full** - a short paragraph for every move, generated in chunks
+
+The coach can call local Stockfish, read the board, derive hanging pieces and capture threats, verify multi-move lines, do arithmetic, look up the opening database, query the Lichess cloud evaluation and Syzygy tablebase, search Wikipedia and DuckDuckGo, and look up player profiles. Chat keeps the conversation history, so follow-up questions work.
+
+Moves written in coach replies are clickable. The coach marks a move or line it wants to make replayable, and clicking it plays the sequence at one move per second from the correct starting position.
+
+The Lichess opening explorer now requires an account token. Add one in Coach settings if you want game and master statistics; cloud evaluations and the tablebase work without it.
+
+Reports and chat calls cost money at the provider. A typical game report is a few cents with a mid-tier model. Full-game reports cost more because they produce far more text.
 
 ## Data
 

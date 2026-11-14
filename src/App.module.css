@@ -1,12 +1,30 @@
+.appShell {
+    --text: #e9edf1;
+    --muted: #a6a9ad;
+    --accent: #eb4b4b;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #121314;
+    background-image: radial-gradient(
+        rgba(255, 255, 255, 0.075) 1px,
+        transparent 1.2px
+    );
+    background-size: 14px 14px;
+    color: #e9edf1;
+    color-scheme: dark;
+}
+
 .app {
     position: relative;
     z-index: 1;
     display: flex;
+    flex: 1;
     align-items: center;
     justify-content: center;
-    gap: 28px;
-    min-height: 100vh;
-    padding: 22px;
+    gap: 18px;
+    min-height: 0;
+    padding: 24px 22px 34px;
 }
 
 .boardColumn {
@@ -19,10 +37,35 @@
     flex-shrink: 0;
 }
 
-@media (max-width: 1080px) {
+.coachColumn {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 360px;
+    padding: 14px;
+    border: 1px solid #34373b;
+    border-radius: 4px;
+    background: #1c1d1f;
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+}
+
+@media (max-width: 1400px) {
+    .coachColumn {
+        width: 300px;
+    }
+}
+
+@media (max-width: 1180px) {
     .app {
         flex-direction: column;
         justify-content: flex-start;
-        padding: 16px;
+        min-height: auto;
+        padding: 20px 16px 40px;
+    }
+
+    .coachColumn {
+        width: 400px;
+        max-width: 100%;
     }
 }

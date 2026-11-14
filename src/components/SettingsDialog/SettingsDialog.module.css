@@ -39,7 +39,7 @@
 .done {
     border: 0;
     border-radius: 7px;
-    background: #2f7cf6;
+    background: #eb4b4b;
     color: #fff;
     font-family: inherit;
     font-size: 13px;
@@ -71,7 +71,7 @@
 
 .range {
     width: 100%;
-    accent-color: #2f7cf6;
+    accent-color: #eb4b4b;
 }
 
 .hint {
@@ -90,7 +90,7 @@
     height: 34px;
     border: 1px solid #34343e;
     border-radius: 7px;
-    background: #24242b;
+    background: #26282b;
     color: #d9d9e1;
     font-family: inherit;
     font-size: 13px;
@@ -99,8 +99,8 @@
 }
 
 .selected {
-    border-color: #2f7cf6;
-    background: #2f7cf6;
+    border-color: #eb4b4b;
+    background: #eb4b4b;
     color: #fff;
 }
 
@@ -110,7 +110,7 @@
     padding: 0 10px;
     border: 1px solid #34343e;
     border-radius: 7px;
-    background: #24242b;
+    background: #26282b;
     color: #e6e6ec;
     font-family: inherit;
     font-size: 13px;

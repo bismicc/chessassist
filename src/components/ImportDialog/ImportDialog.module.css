@@ -59,7 +59,7 @@
 }
 
 .textarea:focus {
-    border-color: #2f7cf6;
+    border-color: #eb4b4b;
 }
 
 .error {
@@ -81,7 +81,7 @@
 .primary {
     border: 0;
     border-radius: 8px;
-    background: #2f7cf6;
+    background: #eb4b4b;
     color: #fff;
     font-family: inherit;
     font-size: 13px;

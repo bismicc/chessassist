@@ -1,0 +1,170 @@
+.header {
+    position: relative;
+    z-index: 40;
+    border-bottom: 1px solid rgba(18, 19, 20, 0.12);
+    background: var(--paper);
+}
+
+.dark {
+    border-bottom-color: rgba(233, 237, 241, 0.12);
+    background: transparent;
+}
+
+.dark .mark span {
+    background: var(--paper);
+}
+
+.dark .mark span:nth-child(1),
+.dark .mark span:nth-child(4) {
+    background: var(--red);
+}
+
+.dark .wordmark {
+    color: var(--paper);
+}
+
+.dark .link,
+.dark .active {
+    color: var(--paper);
+}
+
+.dark .link:hover,
+.dark .active {
+    color: var(--red);
+}
+
+.dark .cta {
+    border-color: rgba(233, 237, 241, 0.38);
+    background: transparent;
+    color: var(--paper);
+}
+
+.dark .cta:hover {
+    border-color: var(--red);
+    background: var(--red);
+    color: var(--paper);
+}
+
+.inner {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    width: 100%;
+    max-width: 1440px;
+    height: 64px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.mark {
+    display: grid;
+    grid-template-columns: 6px 6px;
+    grid-template-rows: 6px 6px;
+    gap: 2px;
+    transform: rotate(45deg);
+}
+
+.mark span {
+    display: block;
+    background: var(--ink);
+}
+
+.mark span:nth-child(1),
+.mark span:nth-child(4) {
+    background: var(--red);
+}
+
+.wordmark {
+    color: var(--ink);
+    font-family: var(--font-heading);
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+    padding-top: 1px;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin-left: auto;
+}
+
+.link,
+.active {
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    transition: color 0.15s ease;
+}
+
+.link:hover,
+.active {
+    color: var(--red);
+}
+
+.cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 14px;
+    border: 2px solid var(--ink);
+    border-radius: 2px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.cta:hover {
+    border-color: var(--red);
+    background: var(--red);
+    color: var(--paper);
+}
+
+@media (max-width: 760px) {
+    .nav {
+        display: none;
+    }
+
+    .inner {
+        gap: 14px;
+        padding: 0 16px;
+    }
+
+    .cta {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 420px) {
+    .inner {
+        gap: 10px;
+        padding: 0 12px;
+    }
+
+    .wordmark {
+        font-size: 15px;
+    }
+
+    .cta {
+        height: 32px;
+        padding: 0 9px;
+        font-size: 10px;
+    }
+}

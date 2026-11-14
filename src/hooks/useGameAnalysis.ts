@@ -24,6 +24,7 @@ export default function useGameAnalysis({
     const [ progress, setProgress ] = useState(0);
     const [ storedEvaluations, setStoredEvaluations ] = useState<(Evaluation | undefined)[]>([]);
     const [ classifications, setClassifications ] = useState<(MoveClassification | undefined)[]>([]);
+    const [ bestMoves, setBestMoves ] = useState<(string | undefined)[]>([]);
 
     const batchRunning = useRef(false);
     const stopRequested = useRef(false);
@@ -41,6 +42,7 @@ export default function useGameAnalysis({
         setAnalysing(true);
         setProgress(0);
         setClassifications([]);
+        setBestMoves([]);
 
         const evaluations: (Evaluation | undefined)[] = new Array(positions.length);
         const secondBestEvaluations: (Evaluation | undefined)[] = new Array(
@@ -169,6 +171,7 @@ export default function useGameAnalysis({
         }
 
         setClassifications(classified);
+        setBestMoves(bestMoves);
         setAnalysing(false);
         setProgress(0);
     }
@@ -187,6 +190,7 @@ export default function useGameAnalysis({
         stopAnalysis();
         setStoredEvaluations([]);
         setClassifications([]);
+        setBestMoves([]);
     }
 
     return {
@@ -194,6 +198,7 @@ export default function useGameAnalysis({
         progress,
         storedEvaluations,
         classifications,
+        bestMoves,
         batchRunning,
         analyseGame,
         stopAnalysis,

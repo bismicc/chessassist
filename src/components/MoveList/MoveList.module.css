@@ -1,7 +1,7 @@
 .list {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
@@ -19,52 +19,53 @@
 
 .row {
     display: grid;
-    grid-template-columns: 30px 1fr 1fr;
+    grid-template-columns: 27px 1fr 1fr;
     align-items: center;
-    gap: 3px;
+    gap: 2px;
 }
 
 .number {
     color: #6f6f7c;
-    font-size: 12px;
-    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 400;
     text-align: right;
-    padding-right: 5px;
+    padding-right: 4px;
 }
 
 .move {
     display: flex;
     align-items: center;
-    height: 29px;
+    height: 24px;
     border: 0;
-    border-radius: 6px;
+    border-radius: 2px;
     background: transparent;
     color: #e2e2e8;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     text-align: left;
-    padding: 0 7px;
+    padding: 0 6px;
     cursor: pointer;
 }
 
 .classification {
-    width: 15px;
-    height: 15px;
+    width: 13px;
+    height: 13px;
     flex-shrink: 0;
-    margin-right: 5px;
+    margin-right: 4px;
     border-radius: 50%;
 }
 
 .move:hover {
-    background: #2a2a32;
+    background: #2f3236;
 }
 
 .active {
-    background: #2f7cf6;
+    background: #eb4b4b;
     color: #fff;
 }
 
 .active:hover {
-    background: #2f7cf6;
+    background: #eb4b4b;
 }

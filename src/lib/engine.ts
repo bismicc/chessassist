@@ -85,6 +85,7 @@ export default class Engine {
     destroy() {
         this.generation++;
         this.clearUpdate();
+        this.finishSearch();
         this.worker.postMessage("quit");
         this.worker.terminate();
     }

@@ -74,7 +74,7 @@
     padding: 9px 10px;
     border: 1px solid #2a2a31;
     border-radius: 9px;
-    background: #17171b;
+    background: #121314;
 }
 
 .summaryRow {
@@ -131,7 +131,7 @@
 }
 
 .row:hover {
-    background: #24242b;
+    background: #26282b;
 }
 
 .move {

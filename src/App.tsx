@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Chess, Move } from "chess.js";
 import { Square } from "react-chessboard/dist/chessboard/types";
 
 import AnalysisPanel from "./components/AnalysisPanel";
 import BoardArea from "./components/BoardArea";
+import CoachPanel from "./components/CoachPanel";
 import FloatingCat from "./components/FloatingCat";
 import ImportDialog from "./components/ImportDialog";
 import SettingsDialog from "./components/SettingsDialog";
+import SiteHeader from "./components/SiteHeader";
 
 import useBoardSize from "./hooks/useBoardSize";
 import useEngine from "./hooks/useEngine";
@@ -41,15 +43,18 @@ function App() {
     const [ showImport, setShowImport ] = useState(false);
     const [ variation, setVariation ] = useState<Variation>();
 
+    const playbackTimer = useRef<number>();
+    const playbackRun = useRef(0);
+
     const { engineRef, error } = useEngine();
-    const boardSize = useBoardSize(410);
+    const boardSize = useBoardSize();
 
     const settings = useSettingsStore(state => state.settings);
     const setSettings = useSettingsStore(state => state.setSettings);
 
     const {
-        analysing, progress, storedEvaluations, classifications, batchRunning,
-        analyseGame, stopAnalysis, resetAnalysis
+        analysing, progress, storedEvaluations, classifications, bestMoves,
+        batchRunning, analyseGame, stopAnalysis, resetAnalysis
     } = useGameAnalysis({
         engineRef,
         positions: game.positions,
@@ -208,7 +213,19 @@ function App() {
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [ game.positions.length, currentPly, variation ]);
 
+    useEffect(() => {
+        return () => {
+            playbackRun.current++;
+
+            if (playbackTimer.current != undefined) {
+                window.clearTimeout(playbackTimer.current);
+            }
+        };
+    }, []);
+
     function handleImport(pgn: string) {
+        stopPlayback();
+
         let next: GameData;
 
         try {
@@ -230,11 +247,14 @@ function App() {
     }
 
     function selectPly(ply: number) {
+        stopPlayback();
         setVariation(undefined);
         setCurrentPly(Math.max(0, Math.min(game.positions.length - 1, ply)));
     }
 
     function goBack() {
+        stopPlayback();
+
         if (variation && variation.index > 0) {
             setVariation({ ...variation, index: variation.index - 1 });
             return;
@@ -247,6 +267,8 @@ function App() {
     }
 
     function goForward() {
+        stopPlayback();
+
         if (variation) {
             if (variation.index < variation.positions.length) {
                 setVariation({ ...variation, index: variation.index + 1 });
@@ -259,11 +281,14 @@ function App() {
     }
 
     function goStart() {
+        stopPlayback();
         setVariation(undefined);
         setCurrentPly(0);
     }
 
     function goEnd() {
+        stopPlayback();
+
         if (variation) {
             setVariation({ ...variation, index: variation.positions.length });
             return;
@@ -272,8 +297,8 @@ function App() {
         setCurrentPly(game.positions.length - 1);
     }
 
-    function appendMove(move: Move) {
-        const next: Position = {
+    function toPosition(move: Move): Position {
+        return {
             fen: move.after,
             san: move.san,
             uci: toUci(move),
@@ -282,6 +307,10 @@ function App() {
             moveNumber: Number(move.before.split(" ")[5]) || 1,
             colour: move.color
         };
+    }
+
+    function appendMove(move: Move) {
+        const next = toPosition(move);
 
         setVariation(current => {
             if (!current) {
@@ -298,6 +327,7 @@ function App() {
     }
 
     function playMove(move: Move) {
+        stopPlayback();
         playMoveSound(move);
         appendMove(move);
     }
@@ -316,10 +346,163 @@ function App() {
         }
     }
 
+    function stopPlayback() {
+        playbackRun.current++;
+
+        if (playbackTimer.current != undefined) {
+            window.clearTimeout(playbackTimer.current);
+            playbackTimer.current = undefined;
+        }
+    }
+
+    function playLine(startPly: number | undefined, moves: string[]) {
+        if (!moves.length) return;
+
+        stopPlayback();
+
+        const normalise = (move: string) => move.replace(/[+#]$/, "");
+        const last = game.positions.length - 1;
+        const requested = startPly != undefined
+            && Number.isInteger(startPly)
+            && startPly >= 0
+            && startPly <= last
+            ? startPly
+            : undefined;
+        let rootPly = requested ?? variation?.rootPly ?? currentPly;
+        let basePositions = requested == undefined && variation
+            ? variation.positions.slice(0, variation.index)
+            : [];
+        const startFen = requested != undefined
+            ? game.positions[requested].fen
+            : position.fen;
+
+        function buildLine(fen: string) {
+            const board = new Chess(fen);
+            const built: Move[] = [];
+
+            for (const san of moves) {
+                try {
+                    built.push(board.move(san));
+                } catch {
+                    return;
+                }
+            }
+
+            return built;
+        }
+
+        function findMainline() {
+            const target = moves.map(normalise);
+            let best = -1;
+            let bestDistance = Infinity;
+            let bestLine: Move[] | undefined;
+
+            for (let start = 0; start <= last - moves.length; start++) {
+                const matches = target.every((move, index) => (
+                    normalise(game.positions[start + 1 + index].san ?? "") == move
+                ));
+
+                if (!matches) continue;
+
+                const line = buildLine(game.positions[start].fen);
+                if (!line) continue;
+
+                const distance = Math.abs(start - currentPly);
+                if (distance >= bestDistance) continue;
+
+                best = start;
+                bestDistance = distance;
+                bestLine = line;
+            }
+
+            return bestLine ? { root: best, line: bestLine } : undefined;
+        }
+
+        let built = requested != undefined ? buildLine(startFen) : undefined;
+
+        if (!built && variation) {
+            built = buildLine(position.fen);
+
+            if (built) {
+                rootPly = variation.rootPly;
+                basePositions = variation.positions.slice(0, variation.index);
+            }
+        }
+
+        if (!built) {
+            const found = findMainline();
+
+            if (found) {
+                rootPly = found.root;
+                basePositions = [];
+                built = found.line;
+            }
+        }
+
+        if (!built) {
+            built = buildLine(position.fen);
+            if (built) rootPly = variation?.rootPly ?? currentPly;
+        }
+
+        if (!built) {
+            const first = normalise(moves[0]);
+
+            for (let index = 1; index <= last; index++) {
+                if (normalise(game.positions[index].san ?? "") != first) continue;
+
+                rootPly = index - 1;
+                basePositions = [];
+                built = buildLine(game.positions[rootPly].fen);
+                if (built) break;
+            }
+        }
+
+        if (!built) return;
+
+        const entries = built.map(move => ({
+            move,
+            position: toPosition(move)
+        }));
+        const allPositions = [
+            ...basePositions,
+            ...entries.map(entry => entry.position)
+        ];
+        const startIndex = basePositions.length;
+
+        setCurrentPly(rootPly);
+        setVariation({
+            rootPly,
+            positions: allPositions,
+            index: startIndex
+        });
+
+        const run = ++playbackRun.current;
+
+        function step(index: number) {
+            if (run != playbackRun.current) return;
+            if (index >= allPositions.length) return;
+
+            const entry = entries[index - startIndex];
+            if (entry) playMoveSound(entry.move);
+
+            setVariation(current => current
+                ? { ...current, index: index + 1 }
+                : current
+            );
+
+            playbackTimer.current = window.setTimeout(() => step(index + 1), 1000);
+        }
+
+        playbackTimer.current = window.setTimeout(() => step(startIndex), 350);
+    }
+
     return <>
         <FloatingCat/>
 
-        <div className={styles.app}>
+        <div className={styles.appShell}>
+            <SiteHeader compact variant="dark"/>
+
+            <div className={styles.app}>
             <main className={styles.boardColumn}>
                 <BoardArea
                     position={position}
@@ -367,6 +550,26 @@ function App() {
                 />
             </div>
 
+            <div className={styles.coachColumn} style={{ height: boardSize }}>
+                <CoachPanel
+                    game={game}
+                    currentPly={currentPly}
+                    position={position}
+                    history={history}
+                    isVariation={!!variation}
+                    classifications={classifications}
+                    evaluations={storedEvaluations}
+                    bestMoves={bestMoves}
+                    opening={openingWithHistory}
+                    settings={settings}
+                    analysing={analysing}
+                    progress={progress}
+                    onAnalyseGame={analyseGame}
+                    onStopAnalysis={stopAnalysis}
+                    onPlayLine={playLine}
+                />
+            </div>
+
             {showSettings && <SettingsDialog
                 settings={settings}
                 onChange={setSettings}
@@ -377,6 +580,7 @@ function App() {
                 onImport={handleImport}
                 onClose={() => setShowImport(false)}
             />}
+            </div>
         </div>
     </>;
 }

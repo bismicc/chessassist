@@ -1,47 +1,59 @@
 .section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 10px;
+    flex-shrink: 0;
+    gap: 5px;
+    height: 96px;
+    overflow: hidden;
+    padding: 8px;
     border: 1px solid #2a2a31;
-    border-radius: 10px;
-    background: #17171b;
+    border-radius: 2px;
+    background: #121314;
 }
 
 .header {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
 }
 
 .title {
     color: var(--muted);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.8px;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
 .depth {
     color: #6f6f7c;
-    font-size: 11px;
-    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    font-weight: 400;
 }
 
 .lines {
     display: flex;
+    flex: 1;
     flex-direction: column;
-    gap: 6px;
+    gap: 3px;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .line {
     display: flex;
-    align-items: flex-start;
-    gap: 9px;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 7px;
     width: 100%;
-    padding: 4px 6px;
+    height: 29px;
+    overflow: hidden;
+    padding: 3px 5px;
     border: 0;
-    border-radius: 6px;
+    border-radius: 2px;
     background: transparent;
     color: inherit;
     font-family: inherit;
@@ -50,7 +62,7 @@
 }
 
 .line:hover {
-    background: #24242b;
+    background: #26282b;
 }
 
 .evaluation {
@@ -66,11 +78,14 @@
 }
 
 .moves {
+    min-width: 0;
+    overflow: hidden;
     color: #d7d7df;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
-    line-height: 1.45;
-    padding-top: 1px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .empty {
