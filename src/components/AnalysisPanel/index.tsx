@@ -59,7 +59,7 @@ function AnalysisPanel({
             <div className={styles.toolbar}>
                 <button className={styles.importButton} onClick={onImport}>
                     <ImportIcon/>
-                    Import PGN
+                    Import game
                 </button>
 
                 <button
