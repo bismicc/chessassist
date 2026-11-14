@@ -6,7 +6,7 @@ import { toUci } from "./chess";
 export const startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 export const samplePgn = `[Event "Casual Game"]
-[Site "Chessasist"]
+[Site "Chessassist"]
 [Date "2026.11.08"]
 [White "NyleTheRiver"]
 [Black "E4NC390"]

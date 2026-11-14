@@ -1,4 +1,4 @@
-# Chessasist
+# Chessassist
 
 An open-source chess learning app. Import a game, let Stockfish find the truth, and ask an AI coach to explain the position, the threats, and the plan.
 
@@ -99,7 +99,7 @@ The visual direction references [ohnyfans.com](https://ohnyfans.com) for its pix
 
 ## Inspiration
 
-Chessasist borrows ideas from novachess.ai (AI coaching and player stats), Chess.com (personalised insights and an opening library), and Lichess (open source and the games database), while aiming to stay free and open source.
+Chessassist borrows ideas from novachess.ai (AI coaching and player stats), Chess.com (personalised insights and an opening library), and Lichess (open source and the games database), while aiming to stay free and open source.
 
 The core framework of the chess analysis board, the board sounds, and the named-openings database are taken from another open source chess analysis website called WintrChess (https://github.com/WintrCat/wintrchess).
 

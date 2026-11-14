@@ -26,7 +26,7 @@ const useAiStore = create<AiStore>()(persist(set => ({
         settings: { ...state.settings, mode }
     }))
 }), {
-    name: "chessasist.ai"
+    name: "chessassist.ai"
 }));
 
 export default useAiStore;

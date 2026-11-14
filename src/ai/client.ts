@@ -350,7 +350,7 @@ function createOpenAiClient(settings: AiSettings): ChatClient {
 
             if (settings.provider == "openrouter") {
                 headers["HTTP-Referer"] = window.location.origin;
-                headers["X-Title"] = "Chessasist";
+                headers["X-Title"] = "Chessassist";
             }
 
             const response = await sendRequest(`${baseUrl}/chat/completions`, {

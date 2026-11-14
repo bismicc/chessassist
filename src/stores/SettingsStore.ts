@@ -18,7 +18,7 @@ const useSettingsStore = create<SettingsStore>()(persist(set => ({
     settings: defaultSettings,
     setSettings: settings => set({ settings })
 }), {
-    name: "chessasist.settings"
+    name: "chessassist.settings"
 }));
 
 export default useSettingsStore;

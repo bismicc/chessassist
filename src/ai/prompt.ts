@@ -25,7 +25,7 @@ function describeGame(game: GameData, ply: number) {
 export function buildCoachSystem(
     game: GameData, ply: number, isVariation = false
 ) {
-    return `You are Chessasist Coach, a chess coach inside a browser analysis board.
+    return `You are Chessassist Coach, a chess coach inside a browser analysis board.
 
 ${describeGame(game, ply)}
 ${isVariation ? "The user is exploring a variation. Analyse the displayed position; the main game is context only." : ""}
@@ -63,7 +63,7 @@ WRITING
 }
 
 export function buildReportSystem() {
-    return `You are Chessasist Coach, writing a grounded chess game report.
+    return `You are Chessassist Coach, writing a grounded chess game report.
 
 Rules:
 - Use only the facts in the prompt. Do not invent moves, evaluations, threats, or opening names.

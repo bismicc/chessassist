@@ -148,7 +148,7 @@ function AiSettingsDialog({
 
             <p className={styles.note}>
                 Your key is stored in this browser only. It is sent directly to
-                the provider, never to Chessasist. Use a limited key. Choose a
+                the provider, never to Chessassist. Use a limited key. Choose a
                 model with tool calling so the coach can read the board and run
                 Stockfish.
             </p>

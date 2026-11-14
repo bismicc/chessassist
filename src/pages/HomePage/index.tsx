@@ -261,7 +261,7 @@ export default function HomePage() {
                             </a>
                         </div>
                         <p className={styles.finalNote}>
-                            Chessasist is open source. The engine runs in your browser.
+                            Chessassist is open source. The engine runs in your browser.
                             The coach uses your own API key.
                         </p>
                     </div>
@@ -270,7 +270,7 @@ export default function HomePage() {
         </main>
 
         <footer className={styles.footer}>
-            <span>CHESSASIST © 2026</span>
+            <span>CHESSASSIST © 2026</span>
             <span>Built in the open</span>
             <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub ↗</a>
         </footer>

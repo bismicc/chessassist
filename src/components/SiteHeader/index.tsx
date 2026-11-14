@@ -16,14 +16,14 @@ export default function SiteHeader({
 
     return <header className={className}>
         <div className={styles.inner}>
-            <Link className={styles.brand} to="/" aria-label="Chessasist home">
+            <Link className={styles.brand} to="/" aria-label="Chessassist home">
                 <span className={styles.mark} aria-hidden="true">
                     <span/>
                     <span/>
                     <span/>
                     <span/>
                 </span>
-                <span className={styles.wordmark}>CHESSASIST</span>
+                <span className={styles.wordmark}>CHESSASSIST</span>
             </Link>
 
             {!compact && <nav className={styles.nav} aria-label="Main navigation">
