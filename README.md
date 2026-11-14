@@ -7,6 +7,7 @@ Everything runs in the browser. There is no backend or account system.
 ## What it does
 
 - **Game analysis** - import a PGN and review every move with local Stockfish 17 analysis.
+- **Flexible import** - paste a PGN, open a `.pgn` file, or fetch recent public games by Chess.com or Lichess username.
 - **Move classification** - book, brilliant, best, great, good, mistake, and blunder labels.
 - **AI coach** - a permanent right-hand sidebar that can inspect the board, run Stockfish, check threats, verify lines, and answer follow-up questions.
 - **Opening explorer** - opening names, book moves, win rates, average rating, and a full book-move table.
@@ -42,6 +43,17 @@ npm run check   # type-check only
 ## Stack
 
 React 18 + TypeScript, webpack 5 + Babel, CSS Modules, React Router 6, Zustand 4, chess.js, react-chessboard, and Stockfish 17 WASM.
+
+## Importing games
+
+The import dialog has four sources:
+
+- **Paste PGN** - paste a game from any site.
+- **Chess.com** - enter a public username and pick from the most recent games across the latest three monthly archives.
+- **Lichess** - enter a public username and pick from the 24 most recent games.
+- **PGN file** - choose or drop a `.pgn` file containing one game.
+
+Chess.com and Lichess imports use their public APIs. No account, API key, or upload is involved; the browser fetches the games directly.
 
 ## AI coach
 
