@@ -110,11 +110,11 @@ Every AI in the app is given the same chess glossary: the coach, the game report
 
 ## Deploy on GitHub Pages
 
-The app is a static browser bundle, so it can be hosted for free on GitHub Pages.
+The app is a static browser bundle, so it can be hosted for free on GitHub Pages. The built site is published to the `gh-pages` branch.
 
-1. Push to `main`.
-2. Open **Settings → Pages** and set **Build and deployment → Source** to **GitHub Actions**.
-3. Run the **Deploy to GitHub Pages** workflow, or push another commit.
+1. Open **Settings → Pages**.
+2. Set **Build and deployment → Source** to **Deploy from a branch**.
+3. Choose the **`gh-pages`** branch and **`/ (root)`** folder, then save.
 
 The site will be available at:
 
@@ -123,6 +123,14 @@ https://<username>.github.io/chessassist/
 ```
 
 GitHub Pages uses hash routes (`/chessassist/#/analysis`) so direct links work without server rewrites. The animated page transition is disabled there because it relies on the History API; the local development build keeps it.
+
+To publish a new build:
+
+```sh
+npm run build
+```
+
+Replace the contents of the `gh-pages` branch with the new `dist` contents and push it.
 
 ## Data and classification
 
