@@ -1,0 +1,10 @@
+# Puzzle data
+
+`puzzles.json` is a curated subset of the Lichess puzzle database.
+
+- Source: https://database.lichess.org/#puzzles
+- Licence: CC0 1.0 Universal (public domain dedication)
+- Curation: puzzles rated 600-2399, popularity at least 78, at least 120 plays, rating deviation at most 100, grouped by motif and rating band.
+- Rebuild with `python scripts/build-puzzles.py` after installing `zstandard`.
+
+The puzzle FEN is the position before the opponent's setup move. The first entry in `moves` is that setup move; the rest is the solution. The app applies the setup move before presenting the puzzle.
