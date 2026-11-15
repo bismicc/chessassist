@@ -7,7 +7,7 @@
 
 .dark {
     border-bottom-color: rgba(233, 237, 241, 0.12);
-    background: transparent;
+    background: #121314;
 }
 
 .dark .mark span {

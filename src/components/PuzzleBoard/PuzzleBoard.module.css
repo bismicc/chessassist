@@ -1,0 +1,6 @@
+.board {
+    position: relative;
+    flex-shrink: 0;
+    border: 1px solid #34373b;
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.35);
+}

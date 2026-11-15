@@ -33,7 +33,9 @@ async function readError(response: Response) {
     return `Request failed (${response.status})`;
 }
 
-export async function fetchChessComGames(username: string): Promise<ImportedGame[]> {
+export async function fetchChessComGames(
+    username: string, limit = 24
+): Promise<ImportedGame[]> {
     const name = cleanUsername(username);
     const archiveUrl = "https://api.chess.com/pub/player/"
         + `${encodeURIComponent(name)}/games/archives`;
@@ -44,19 +46,24 @@ export async function fetchChessComGames(username: string): Promise<ImportedGame
     if (!response.ok) throw new Error(await readError(response));
 
     const data = await response.json() as { archives?: string[] };
-    const archives = (data.archives ?? []).slice(-3).reverse();
-    const months = await Promise.all(archives.map(async url => {
+    const archives = (data.archives ?? []).slice().reverse();
+    const months: ChessComGame[] = [];
+    const archiveLimit = limit >= 1000 ? 36 : 12;
+
+    for (const url of archives.slice(0, archiveLimit)) {
         const month = await fetch(url, { headers: { Accept: "application/json" } });
-        if (!month.ok) return [];
+        if (!month.ok) continue;
 
         const payload = await month.json() as { games?: ChessComGame[] };
-        return payload.games ?? [];
-    }));
+        months.push(...(payload.games ?? []));
 
-    const games = months.flat()
+        if (months.filter(game => game.pgn).length >= limit) break;
+    }
+
+    const games = months
         .filter(game => game.pgn)
         .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
-        .slice(0, 24);
+        .slice(0, limit);
 
     return games.map(game => ({
         id: game.url,
@@ -72,10 +79,12 @@ export async function fetchChessComGames(username: string): Promise<ImportedGame
     }));
 }
 
-export async function fetchLichessGames(username: string): Promise<ImportedGame[]> {
+export async function fetchLichessGames(
+    username: string, limit = 24
+): Promise<ImportedGame[]> {
     const name = cleanUsername(username);
     const url = "https://lichess.org/api/games/user/"
-        + `${encodeURIComponent(name)}?max=24&pgnInJson=true&clocks=false`
+        + `${encodeURIComponent(name)}?max=${limit}&pgnInJson=true&clocks=false`
         + "&evals=false&opening=false";
     const response = await fetch(url, {
         headers: { Accept: "application/x-ndjson" }

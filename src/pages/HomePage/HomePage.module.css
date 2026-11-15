@@ -1,7 +1,7 @@
 .page {
     min-height: 100vh;
     overflow-x: clip;
-    background: var(--paper);
+    background: transparent;
     color: var(--ink);
 }
 
@@ -128,11 +128,17 @@
 }
 
 .lightToDark {
-    background: var(--paper);
+    background: transparent;
 }
 
 .darkSection {
-    background: var(--panel);
+    background-color: var(--panel);
+    background-image: radial-gradient(
+        var(--dot-dark) 1px,
+        transparent 1.2px
+    );
+    background-size: 14px 14px;
+    background-attachment: fixed;
     color: var(--paper);
     scroll-margin-top: 64px;
 }
@@ -365,9 +371,64 @@
     line-height: 1.6;
 }
 
+.trainingPreview {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    width: 100%;
+}
+
+.trainingTag {
+    align-self: flex-start;
+    padding: 4px 7px;
+    border: 1px solid var(--red);
+    color: var(--red);
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.05em;
+}
+
+.trainingLine {
+    color: var(--paper);
+    font-family: var(--font-heading);
+    font-size: 21px;
+}
+
+.trainingMeter {
+    display: block;
+    height: 4px;
+    background: #34373b;
+}
+
+.trainingMeter span {
+    display: block;
+    width: 68%;
+    height: 100%;
+    background: var(--red);
+}
+
+.trainingNote {
+    color: #8d9196;
+    font-family: var(--font-mono);
+    font-size: 9px;
+}
+
+.openingLine {
+    color: #c6d0da;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.openingPlan {
+    color: #8d9196;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
 .lightSection {
     position: relative;
-    background: var(--paper);
+    background: transparent;
     color: var(--ink);
     scroll-margin-top: 64px;
 }
@@ -481,7 +542,13 @@
 }
 
 .finalSection {
-    background: var(--panel);
+    background-color: var(--panel);
+    background-image: radial-gradient(
+        var(--dot-dark) 1px,
+        transparent 1.2px
+    );
+    background-size: 14px 14px;
+    background-attachment: fixed;
     color: var(--paper);
 }
 
@@ -549,6 +616,12 @@
     font-size: 9px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+}
+
+.footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .footer a:hover {

@@ -1,4 +1,5 @@
 import { ChangeEvent, useRef, useState } from "react";
+import { ArrowRight } from "lucide-react";
 
 import useEscapeClose from "../../hooks/useEscapeClose";
 
@@ -237,7 +238,9 @@ function ImportDialog({ onImport, onClose }: ImportDialogProps) {
                         <span className={styles.result}>{game.result}</span>
                         <span>{game.date}</span>
                         <span className={styles.timeClass}>{game.timeClass}</span>
-                        <span className={styles.arrow}>→</span>
+                        <span className={styles.arrow}>
+                            <ArrowRight size={13} aria-hidden="true"/>
+                        </span>
                     </span>
                 </button>)}
             </div>}

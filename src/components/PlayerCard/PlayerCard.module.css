@@ -6,6 +6,27 @@
     padding: 0 2px;
 }
 
+.clock {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+    padding: 5px 10px;
+    border: 1px solid #3c3c46;
+    border-radius: 6px;
+    background: #16171a;
+    color: #f2f2f5;
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.clock svg {
+    color: #777784;
+}
+
 .name {
     color: var(--text);
     font-size: 15px;

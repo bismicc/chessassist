@@ -7,17 +7,21 @@ Everything runs in the browser. There is no backend or account system.
 ## What it does
 
 - **Game analysis** - import a PGN and review every move with local Stockfish 17 analysis.
-- **Flexible import** - paste a PGN, open a `.pgn` file, or fetch recent public games by Chess.com or Lichess username.
+- **Flexible import** - paste a PGN, open a `.pgn` file, or fetch recent public games by Chess.com or Lichess username. Comments, line breaks, NAGs and `!`/`?` annotations are read from the movetext and shown with the moves.
 - **Move classification** - book, brilliant, best, great, good, mistake, and blunder labels.
 - **AI coach** - a permanent right-hand sidebar that can inspect the board, run Stockfish, check threats, verify lines, and answer follow-up questions.
 - **Opening explorer** - opening names, book moves, win rates, average rating, and a full book-move table.
 - **Interactive board** - play moves, explore variations, right-click to highlight, and right-click-drag to draw arrows.
 - **Clickable analysis lines** - the coach marks replayable moves and sequences; clicking one plays it at one move per second from the correct position.
 - **Position-by-position reports** - key-moment, brief, and full-game reviews written from deterministic chess facts.
+- **Weakness detection** - every analysed game is saved locally and its mistakes are tagged by tactical motif.
+- **Adaptive puzzle trainer** - a preset Lichess puzzle database, curated by motif and rating, with spaced review and an Elo-style puzzle rating.
+- **Opening learner** - fetch recent Chess.com or Lichess games, group them by opening, colour and result, and ask the AI for a grounded lesson on the line you actually play.
+- **Chess glossary** - definitions for every tactic, mating pattern, endgame idea and positional term used by the AIs.
 
 ## Status
 
-This is a working prototype, not a finished training platform. Game analysis, opening study, and the AI coach work. Weakness detection, adaptive puzzles, and the personal training roadmap are still planned.
+This is a working prototype, not a finished training platform. Game analysis, the AI coach, weakness detection, the puzzle trainer, the opening learner and the glossary work. There is still no account system or backend: training data lives in this browser.
 
 ## Run it
 
@@ -32,6 +36,10 @@ Routes:
 
 - `/` - homepage
 - `/analysis` - the analysis board
+- `/training` - training dashboard and weakness profile
+- `/puzzles` - adaptive puzzle trainer
+- `/openings` - Chess.com and Lichess opening learner
+- `/glossary` - complete tactic and positional glossary
 
 ```sh
 npm run build   # type-check and bundle into dist/
@@ -83,6 +91,23 @@ The Lichess opening explorer requires an account token for game and master stati
 
 Reports and chat calls cost money at the provider. A typical key-moment report is a few cents with a mid-tier model. Full-game reports cost more because they produce far more text.
 
+## Training
+
+Run a full analysis on a game and it is saved to the local training profile automatically. If you enter your Chess.com or Lichess username in the training dashboard, only your moves are measured; otherwise both sides are measured. Mistakes and blunders are tagged with the tactical motifs that the engine's best move would have used.
+
+The puzzle pack is a curated subset of the public Lichess puzzle database. It is stored in `public/puzzles/puzzles.json` and grouped by motif, rating, popularity and plays. Puzzles are selected by the weakest motifs first, then by rating closeness, then by spaced review. Rebuild the pack with:
+
+```sh
+pip install zstandard
+python scripts/build-puzzles.py
+```
+
+The training overview can import your recent public Chess.com or Lichess games. Once saved, the profile and opening repertoire are available across every training tab, and the import box disappears. The opening learner reads the deepest named book position in each game and groups the results by opening and colour.
+
+Imported games can then be analysed in bulk with local Stockfish. Choose the depth, MultiPV lines and hash size, then split the batch between full move-by-move games and opening-only games. Full analysis updates the weakness profile; opening-only analysis stops after the first 24 plies. The AI lesson uses that record plus the local opening database, not an invented repertoire.
+
+Every AI in the app is given the same chess glossary: the coach, the game reports, the weakness review and the opening lesson. The coach can also call `get_tactic_definition` for any term. The full glossary is browsable at `/glossary`.
+
 ## Data and classification
 
 Opening names and book positions come from WintrChess's `openings.json`.
@@ -90,6 +115,8 @@ Opening names and book positions come from WintrChess's `openings.json`.
 Great and Brilliant classification uses MultiPV 2 plus sacrifice and material-safety checks. Brilliant requires the engine's best move to leave a new piece en prise for less material than it is worth, while still holding the evaluation. The classifier is deliberately strict, so famous practical brilliancies that are not the engine's first choice are not marked Brilliant.
 
 Opening statistics come from the **Chess Multiverse Opening Intelligence Database (20M Lichess subset)** by Sparsh Varshney, licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), DOI [10.5281/zenodo.19307100](https://doi.org/10.5281/zenodo.19307100). This app aggregates those lines into a position index; the generated statistics index is shared under the same licence.
+
+Puzzle data is a curated subset of the [Lichess puzzle database](https://database.lichess.org/#puzzles), released under CC0. See `public/puzzles/LICENSE.txt` for the curation rules and source attribution.
 
 ## Design
 
@@ -104,10 +131,10 @@ The visual direction references [ohnyfans.com](https://ohnyfans.com) for its pix
 
 ## Roadmap
 
-- Weakness detection across game history: missed tactics, positional errors, endgame technique, opening gaps.
-- Adaptive puzzles generated from your own mistakes.
-- A weekly training plan based on weaknesses and available practice time.
-- Deeper opening study with spaced repetition.
+- Personal puzzles from your own games, marked separately from the preset deck.
+- Repertoire trees with spaced repetition for opening lines.
+- IndexedDB storage for larger game archives and offline puzzle packs.
+- More detailed phase and opening weakness reports.
 
 ## Inspiration
 

@@ -12,24 +12,6 @@
     box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.35);
 }
 
-.header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 0 0;
-}
-
-.title {
-    margin: 0;
-    color: var(--paper);
-    font-family: var(--font-heading);
-    font-size: 29px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    line-height: 1;
-    text-transform: uppercase;
-}
-
 .view {
     display: flex;
     flex: 1;
@@ -109,6 +91,15 @@
     background: #2f3236;
     color: #d8d8e0;
     font-size: 10px;
+}
+
+.saved {
+    flex-shrink: 0;
+    color: #4bff8a;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .depth {

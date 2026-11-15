@@ -39,9 +39,10 @@ function OpeningStatsBlock({ stats }: { stats: OpeningStats }) {
 
 function AnalysisPanel({
     game, currentPly, lines, settings, classifications, opening, gameOver,
-    analysing, progress, error, variationMoves, variationDepth, canGoBack,
-    canGoForward, onBack, onForward, onStart, onEnd, onImport, onSettings,
-    onFlip, onSelectPly, onPlayBookMove, onPlayLine, onExitVariation,
+    analysing, progress, error, trainingSaved, variations,
+    activeVariationId, activeVariationIndex, canGoBack, canGoForward,
+    onBack, onForward, onStart, onEnd, onImport, onSettings, onFlip,
+    onSelectPly, onSelectVariation, onPlayBookMove, onPlayLine,
     onAnalyseGame, onStopAnalysis
 }: AnalysisPanelProps) {
     const [ showBook, setShowBook ] = useState(false);
@@ -51,10 +52,6 @@ function AnalysisPanel({
     const event = game.headers.Event || "Imported game";
 
     return <section className={styles.panel}>
-        <header className={styles.header}>
-            <h1 className={styles.title}>Game Analysis</h1>
-        </header>
-
         <div className={styles.view}>
             <div className={styles.toolbar}>
                 <button className={styles.importButton} onClick={onImport}>
@@ -83,19 +80,14 @@ function AnalysisPanel({
 
             <div className={styles.meta}>
                 <span className={styles.event}>{event}</span>
-                <span className={styles.result}>{result}</span>
+                {result != "*" && result != "?"
+                    && <span className={styles.result}>{result}</span>
+                }
+                {trainingSaved && <span className={styles.saved}>Training saved</span>}
                 <span className={styles.depth}>Depth {settings.depth}</span>
             </div>
 
             {error && <div className={styles.error}>Engine error: {error}</div>}
-
-            {variationMoves.length > 0 && <div className={styles.variation}>
-                <span className={styles.variationLabel}>Exploring</span>
-                <span className={styles.variationMoves}>{variationMoves.join(" ")}</span>
-                <button className={styles.backButton} onClick={onExitVariation}>
-                    Back to game
-                </button>
-            </div>}
 
             <EngineLines
                 lines={lines}
@@ -176,7 +168,11 @@ function AnalysisPanel({
                 positions={game.positions}
                 currentPly={currentPly}
                 classifications={classifications}
+                variations={variations}
+                activeVariationId={activeVariationId}
+                activeVariationIndex={activeVariationIndex}
                 onSelect={onSelectPly}
+                onSelectVariation={onSelectVariation}
             />
 
             <footer className={styles.footer}>
@@ -201,7 +197,7 @@ function AnalysisPanel({
                 </button>
 
                 <span className={styles.counter}>
-                    {currentPly} / {lastPly}{variationDepth ? ` +${variationDepth}` : ""}
+                    {currentPly} / {lastPly}
                 </span>
 
                 <button

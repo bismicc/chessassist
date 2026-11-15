@@ -15,11 +15,23 @@ export interface Position {
     to?: Square;
     moveNumber: number;
     colour: Colour;
+    comment?: string;
+    clock?: string;
+    annotation?: Classification;
+    annotationMark?: string;
+}
+
+export interface GameVariation {
+    id: string;
+    rootPly: number;
+    positions: Position[];
+    comment?: string;
 }
 
 export interface GameData {
     headers: Record<string, string>;
     positions: Position[];
+    variations?: GameVariation[];
 }
 
 export type EvaluationType = "centipawn" | "mate";

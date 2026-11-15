@@ -3,6 +3,12 @@ import { Chess } from "chess.js";
 import Engine from "../lib/engine";
 import { formatEvaluation } from "../lib/evaluation";
 import { getOpeningContext, isBookHistory, isBookPosition } from "../lib/openings";
+import { getOpeningStudyFacts } from "../lib/openingTraining";
+import { getPuzzleStats } from "../lib/puzzles";
+import {
+    getTacticDefinition, tacticDefinitions
+} from "../lib/tactics";
+import useTrainingStore from "../stores/TrainingStore";
 import {
     EngineLine, EngineSettings, Evaluation, GameData, MoveClassification, Position
 } from "../types";
@@ -672,6 +678,52 @@ async function lookupPlayer(
     };
 }
 
+function getTrainingProfile() {
+    const state = useTrainingStore.getState();
+    const weaknesses = Object.values(state.weaknesses)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8)
+        .map(weakness => ({
+            theme: weakness.theme,
+            name: getTacticDefinition(weakness.theme)?.name ?? weakness.theme,
+            score: Math.round(weakness.score * 10) / 10,
+            occurrences: weakness.occurrences,
+            examples: weakness.examples.slice(0, 2)
+        }));
+    const puzzles = getPuzzleStats(state.puzzleProgress);
+    const openings = Object.values(state.openings)
+        .sort((a, b) => b.games - a.games)
+        .slice(0, 6)
+        .map(opening => ({
+            name: opening.name,
+            eco: opening.eco,
+            colour: opening.colour == "w" ? "White" : "Black",
+            games: opening.games,
+            score: opening.games
+                ? Math.round(((opening.wins + opening.draws / 2) / opening.games) * 100)
+                : 0,
+            learning: opening.learning
+        }));
+
+    return {
+        playerName: state.playerName || "not set",
+        gamesImported: state.importedGameCount,
+        importedFrom: state.importedGameSource || "none",
+        gamesAnalysed: state.games.length,
+        sampleWarning: state.games.length < 3
+            ? "Fewer than three analysed games, so treat the weakness profile as provisional. Imported games are opening data only"
+            : undefined,
+        weaknesses,
+        puzzles: {
+            rating: state.puzzleRating,
+            attempts: puzzles.attempts,
+            accuracy: Math.round(puzzles.accuracy * 100),
+            due: puzzles.due
+        },
+        openings
+    };
+}
+
 export async function executeTool(
     call: ToolCall, context: CoachContext, signal?: AbortSignal
 ): Promise<ToolResult> {
@@ -752,6 +804,81 @@ export async function executeTool(
             case "search_web":
                 value = await searchWeb(call.arguments, signal);
                 break;
+
+            case "get_training_profile":
+                value = getTrainingProfile();
+                break;
+
+            case "get_tactic_definition": {
+                const term = String(call.arguments.term ?? "").trim();
+
+                if (!term) {
+                    value = {
+                        definitions: Object.values(tacticDefinitions).map(definition => ({
+                            id: definition.id,
+                            name: definition.name,
+                            category: definition.category,
+                            summary: definition.summary
+                        }))
+                    };
+
+                    break;
+                }
+
+                const definition = getTacticDefinition(term);
+
+                value = definition
+                    ? definition
+                    : {
+                        error: `No definition for ${term}`,
+                        suggestions: Object.values(tacticDefinitions)
+                            .filter(item => item.name.toLowerCase().includes(term.toLowerCase()))
+                            .map(item => item.name)
+                    };
+                break;
+            }
+
+            case "get_opening_repertoire": {
+                const state = useTrainingStore.getState();
+                const studies = Object.values(state.openings)
+                    .sort((a, b) => b.games - a.games)
+                    .slice(0, 8);
+
+                value = studies.length
+                    ? {
+                        openings: studies.map(study => ({
+                            key: study.key,
+                            name: study.name,
+                            colour: study.colour == "w" ? "White" : "Black",
+                            games: study.games,
+                            wins: study.wins,
+                            draws: study.draws,
+                            losses: study.losses,
+                            learning: study.learning,
+                            facts: getOpeningStudyFacts(study)
+                        }))
+                    }
+                    : {
+                        openings: [],
+                        note: "No games have been imported into the opening learner yet"
+                    };
+                break;
+            }
+
+            case "get_puzzle_summary": {
+                const state = useTrainingStore.getState();
+                const stats = getPuzzleStats(state.puzzleProgress);
+
+                value = {
+                    rating: state.puzzleRating,
+                    attempts: stats.attempts,
+                    successes: stats.successes,
+                    accuracy: Math.round(stats.accuracy * 100),
+                    due: stats.due,
+                    themesPractised: stats.themes
+                };
+                break;
+            }
 
             default:
                 throw new Error(`Unknown tool: ${call.name}`);

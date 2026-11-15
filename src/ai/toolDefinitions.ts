@@ -218,5 +218,46 @@ export const toolDefinitions: ToolDefinition[] = [
             required: [ "query" ],
             additionalProperties: false
         }
+    },
+    {
+        name: "get_training_profile",
+        description: "Get the saved training profile: analysed games, ranked weaknesses with examples, puzzle rating and accuracy, and opening record. Use this for questions about improvement or what to practise.",
+        parameters: {
+            type: "object",
+            properties: {},
+            additionalProperties: false
+        }
+    },
+    {
+        name: "get_tactic_definition",
+        description: "Get the exact definition of a chess tactic or positional term such as pin, x-ray attack, clearance, deflection, back-rank mate, zugzwang or outpost. Omit the term to list every definition.",
+        parameters: {
+            type: "object",
+            properties: {
+                term: {
+                    type: "string",
+                    description: "Tactic name or id. Omit to list all definitions."
+                }
+            },
+            additionalProperties: false
+        }
+    },
+    {
+        name: "get_opening_repertoire",
+        description: "Get the openings saved from the user's imported Chess.com or Lichess games, including results, lines and local book statistics.",
+        parameters: {
+            type: "object",
+            properties: {},
+            additionalProperties: false
+        }
+    },
+    {
+        name: "get_puzzle_summary",
+        description: "Get the user's puzzle rating, attempts, accuracy, due reviews and themes practised.",
+        parameters: {
+            type: "object",
+            properties: {},
+            additionalProperties: false
+        }
     }
 ];

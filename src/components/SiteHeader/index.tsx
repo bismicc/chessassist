@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 import SiteHeaderProps from "./SiteHeaderProps";
 import * as styles from "./SiteHeader.module.css";
@@ -10,6 +11,8 @@ export default function SiteHeader({
 }: SiteHeaderProps) {
     const location = useLocation();
     const onAnalysis = location.pathname.startsWith("/analysis");
+    const onTraining = [ "/training", "/puzzles", "/openings", "/glossary" ]
+        .some(path => location.pathname.startsWith(path));
     const className = variant == "dark"
         ? `${styles.header} ${styles.dark}`
         : styles.header;
@@ -33,8 +36,12 @@ export default function SiteHeader({
                 >
                     Analysis
                 </Link>
-                <Link className={styles.link} to="/#toolbox">Tools</Link>
-                <Link className={styles.link} to="/#how">How it works</Link>
+                <Link
+                    className={onTraining ? styles.active : styles.link}
+                    to="/training"
+                >
+                    Training
+                </Link>
                 <a
                     className={styles.link}
                     href={GITHUB_URL}
@@ -46,7 +53,8 @@ export default function SiteHeader({
             </nav>}
 
             <Link className={styles.cta} to={compact ? "/" : "/analysis"}>
-                {compact ? "Home" : "Open board"} <span aria-hidden="true">→</span>
+                {compact ? "Home" : "Open board"}
+                <ArrowRight size={14} aria-hidden="true"/>
             </Link>
         </div>
     </header>;

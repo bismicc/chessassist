@@ -6,6 +6,8 @@ export default interface BoardAreaProps {
     position: Position;
     white: PlayerInfo;
     black: PlayerInfo;
+    whiteClock?: string;
+    blackClock?: string;
     flipped: boolean;
     evaluation?: Evaluation;
     classification?: MoveClassification;

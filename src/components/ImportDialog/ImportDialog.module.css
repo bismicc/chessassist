@@ -250,10 +250,11 @@
 }
 
 .arrow {
+    display: flex;
+    align-items: center;
     margin-left: auto;
     color: var(--red);
-    font-family: inherit;
-    font-size: 14px;
+    line-height: 0;
 }
 
 .actions {

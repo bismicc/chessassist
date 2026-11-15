@@ -17,11 +17,92 @@
     background: #34343e;
 }
 
+.entry {
+    display: flex;
+    flex-direction: column;
+}
+
 .row {
     display: grid;
     grid-template-columns: 27px 1fr 1fr;
     align-items: center;
     gap: 2px;
+}
+
+.comment {
+    margin: 1px 0 4px;
+    padding: 5px 8px 5px 29px;
+    border-left: 2px solid #3b3e43;
+    color: #a6a9ad;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.variation {
+    display: flex;
+    gap: 6px;
+    margin: 1px 0 3px;
+    padding-left: 27px;
+}
+
+.variationRail {
+    width: 2px;
+    flex-shrink: 0;
+    background: #3b3e43;
+}
+
+.variationContent {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.variationMoves {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 4px;
+}
+
+.variationMove {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    padding: 1px 3px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: transparent;
+    color: #a6a9ad;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.variationMove:hover {
+    border-color: #34373b;
+    background: #2f3236;
+    color: #e2e2e8;
+}
+
+.variationNumber {
+    color: #6f6f7c;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    font-weight: 400;
+}
+
+.activeVariationMove {
+    color: #fff;
+    background: #2f3236;
+}
+
+.variationComment {
+    margin: 0;
+    color: #8d9196;
+    font-size: 10px;
+    line-height: 1.4;
 }
 
 .number {
@@ -47,6 +128,16 @@
     text-align: left;
     padding: 0 6px;
     cursor: pointer;
+}
+
+.placeholder {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 6px;
+    color: #6f6f7c;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .classification {

@@ -45,7 +45,11 @@ const toolLabels: Record<string, string> = {
     get_opening: "Checking the opening",
     query_database: "Querying the database",
     lookup_player: "Looking up the player",
-    search_web: "Searching online"
+    search_web: "Searching online",
+    get_training_profile: "Reading your training profile",
+    get_tactic_definition: "Checking the glossary",
+    get_opening_repertoire: "Checking your openings",
+    get_puzzle_summary: "Reading puzzle progress"
 };
 
 let messageCounter = 0;
@@ -114,7 +118,7 @@ export default function useCoach({
         setUsage({ inputTokens: 0, outputTokens: 0 });
         setError("");
         setPendingMode(undefined);
-    }, [ game ]);
+    }, [ game.positions ]);
 
     useEffect(() => {
         if (!pendingMode || analysing) return;

@@ -1,4 +1,5 @@
 import { GameData } from "../types";
+import { getGlossaryPrompt } from "../lib/tactics";
 
 function describeGame(game: GameData, ply: number) {
     const headers = game.headers;
@@ -45,6 +46,7 @@ WORKFLOW
 4. If a pawn and a piece can both recapture, analyse both branches.
 5. Use compare_moves to compare candidates and analyse_position for deeper engine lines.
 6. Use calculate for arithmetic, get_opening for theory, query_database for cloud/tablebase/opening data, lookup_player for profiles, and search_web only for general context.
+7. Use get_training_profile, get_tactic_definition, get_opening_repertoire and get_puzzle_summary when the user asks about weaknesses, definitions, practice or their training.
 
 REASONING
 - Start with checks, captures, and threats.
@@ -59,7 +61,9 @@ WRITING
 - Wrap any move or line the user may want to replay in double brackets: [[ply:0 e4]], [[ply:8 Nf3 Nc6]], or [[ply:47 Nxd3+ Rxd3 Rxe1+]].
 - Always include ply:N for every bracketed sequence. N is the position before the first move. For the current position, use the current ply. Never wrap square names.
 - Give evaluations from White's point of view in pawns, for example +0.7 or -1.2. Say mate in N for mate.
-- Do not use markdown headings in chat.`;
+- Do not use markdown headings in chat.
+
+${getGlossaryPrompt()}`;
 }
 
 export function buildReportSystem() {
@@ -82,7 +86,9 @@ Rules:
 - Write in short paragraphs, not bullet lists.
 - Wrap any move or line the user may want to replay in double brackets with an explicit start position: [[ply:44 Bd5]] or [[ply:45 Nxd3+ Rxd3 Rxe1+]].
 - Always include ply:N for every bracketed sequence. N is the position before the first move and is supplied as replayFrom in the facts. Never put move numbers inside the brackets.
-- Use three hashes (###) for section and move headings. Never use one or two hashes.`;
+- Use three hashes (###) for section and move headings. Never use one or two hashes.
+
+${getGlossaryPrompt()}`;
 }
 
 export function buildKeyReportPrompt(facts: string) {

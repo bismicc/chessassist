@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
+import { TouchBackend } from "react-dnd-touch-backend";
 import { Arrow, CustomSquareStyles, Square } from "react-chessboard/dist/chessboard/types";
 
 import EvaluationBar from "../EvaluationBar";
 import PlayerCard from "../PlayerCard";
+import PromotionPicker from "../PromotionPicker";
+
+import useBoardDragCursor from "../../hooks/useBoardDragCursor";
 
 import { classificationColours, classificationImages } from "../../constants/classifications";
 import BoardAreaProps from "./BoardAreaProps";
@@ -29,10 +33,14 @@ function classificationIconStyle(
 }
 
 function BoardArea({
-    position, white, black, flipped, evaluation, classification, size, onMove
+    position, white, black, whiteClock, blackClock,
+    flipped, evaluation, classification, size, onMove
 }: BoardAreaProps) {
     const [ selected, setSelected ] = useState<Square>();
     const [ highlights, setHighlights ] = useState<Square[]>([]);
+    const [ promotion, setPromotion ] = useState<{ from: Square; to: Square }>();
+    const promotionPiece = useRef("q");
+    const dragCursor = useBoardDragCursor();
 
     const game = useMemo(() => new Chess(position.fen), [ position.fen ]);
 
@@ -45,6 +53,7 @@ function BoardArea({
     useEffect(() => {
         setSelected(undefined);
         setHighlights([]);
+        setPromotion(undefined);
     }, [ position.fen ]);
 
     function clearAnnotations() {
@@ -58,11 +67,20 @@ function BoardArea({
         );
     }
 
-    function tryMove(from: Square, to: Square) {
+    function isPromotion(from: Square, to: Square) {
+        const piece = game.get(from);
+
+        return piece?.type == "p"
+            ? (to[1] == "8" || to[1] == "1")
+            : false;
+    }
+
+    function tryMove(from: Square, to: Square, promotionPiece = "q") {
         const board = new Chess(position.fen);
 
         try {
-            const move = board.move({ from, to, promotion: "q" });
+            const move = board.move({ from, to, promotion: promotionPiece });
+            setPromotion(undefined);
             onMove(move);
 
             return true;
@@ -81,6 +99,11 @@ function BoardArea({
             return;
         }
 
+        if (selected && isPromotion(selected, square)) {
+            setPromotion({ from: selected, to: square });
+            return;
+        }
+
         if (selected && tryMove(selected, square)) {
             setSelected(undefined);
             return;
@@ -94,6 +117,11 @@ function BoardArea({
 
         if (selected == square) {
             setSelected(undefined);
+            return;
+        }
+
+        if (selected && isPromotion(selected, square)) {
+            setPromotion({ from: selected, to: square });
             return;
         }
 
@@ -114,6 +142,10 @@ function BoardArea({
     function onPieceDrop(from: Square, to: Square) {
         clearAnnotations();
         setSelected(undefined);
+
+        if (isPromotion(from, to)) {
+            return tryMove(from, to, promotionPiece.current);
+        }
 
         return tryMove(from, to);
     }
@@ -157,7 +189,10 @@ function BoardArea({
 
     return <div className={styles.area} style={{ width: size + 38 }}>
         <div className={styles.topPlayer}>
-            <PlayerCard player={topPlayer} />
+            <PlayerCard
+                player={topPlayer}
+                clock={flipped ? whiteClock : blackClock}
+            />
         </div>
 
         <div className={styles.row}>
@@ -167,7 +202,10 @@ function BoardArea({
                 className={styles.board}
                 style={{ width: size, height: size }}
                 data-selected={selected ?? ""}
+                data-draggable="true"
                 onContextMenu={event => event.preventDefault()}
+                onDragStartCapture={event => event.preventDefault()}
+                onDragStart={event => event.preventDefault()}
             >
                 <Chessboard
                     position={position.fen}
@@ -177,14 +215,33 @@ function BoardArea({
                     areArrowsAllowed={true}
                     customArrows={NO_ARROWS}
                     animationDuration={150}
-                    customBoardStyle={{ cursor: "pointer" }}
+                    autoPromoteToQueen={false}
+                    customDndBackend={TouchBackend}
+                    customDndBackendOptions={{
+                        enableMouseEvents: true,
+                        delayMouseStart: 0,
+                        delayTouchStart: 0,
+                        touchSlop: 0
+                    }}
                     onSquareClick={onSquareClick}
                     onPieceClick={(_piece, square) => onPieceClick(square)}
                     onSquareRightClick={toggleHighlight}
                     onPieceDragBegin={() => {
                         clearAnnotations();
+                        dragCursor.onDragBegin();
                     }}
-                    onPieceDrop={onPieceDrop}
+                    onPieceDragEnd={dragCursor.onDragEnd}
+                    onPieceDrop={(from, to) => {
+                        dragCursor.onDragEnd();
+                        return onPieceDrop(from, to);
+                    }}
+                    onPromotionPieceSelect={piece => {
+                        if (!piece) return false;
+
+                        promotionPiece.current = piece[1].toLowerCase();
+
+                        return true;
+                    }}
                     customLightSquareStyle={{ backgroundColor: "#f0dfc0" }}
                     customDarkSquareStyle={{ backgroundColor: "#c9a178" }}
                     customNotationStyle={{
@@ -201,11 +258,20 @@ function BoardArea({
                     alt=""
                     style={classificationIconStyle(position.to, flipped, size)}
                 />}
+
+                {promotion && <PromotionPicker
+                    colour={game.get(promotion.from)?.color == "b" ? "b" : "w"}
+                    onSelect={piece => tryMove(promotion.from, promotion.to, piece)}
+                    onCancel={() => setPromotion(undefined)}
+                />}
             </div>
         </div>
 
         <div className={styles.bottomPlayer}>
-            <PlayerCard player={bottomPlayer} />
+            <PlayerCard
+                player={bottomPlayer}
+                clock={flipped ? blackClock : whiteClock}
+            />
         </div>
     </div>;
 }

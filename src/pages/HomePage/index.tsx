@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Chessboard } from "react-chessboard";
+import {
+    ArrowRight, ArrowUp, ArrowUpRight, ExternalLink, Star
+} from "lucide-react";
 
 import PixelDivider from "../../components/PixelDivider";
 import Reveal from "../../components/Reveal";
@@ -85,6 +88,28 @@ const tools = [
             <span>3. Bc4 d6 4. Nc3 Bg4</span>
             <span>5. Nxe5 Bxd1 6. Bxf7+ Ke7</span>
         </div>
+    },
+    {
+        colour: "red",
+        title: "Weakness training",
+        copy: "Every analysed game is tagged by motif. The trainer pulls preset Lichess puzzles for the patterns you actually miss.",
+        preview: <div className={styles.trainingPreview}>
+            <span className={styles.trainingTag}>PIN · 1420</span>
+            <span className={styles.trainingLine}>Back-rank mate · 1,197</span>
+            <span className={styles.trainingMeter}><span/></span>
+            <span className={styles.trainingNote}>Weakness score · 8.4</span>
+        </div>
+    },
+    {
+        colour: "blue",
+        title: "Opening learner",
+        copy: "Fetch your Chess.com or Lichess games, see the openings you really play, and get an AI lesson grounded in the line.",
+        preview: <div className={styles.openingPreview}>
+            <span className={styles.openingName}>Queen's Indian</span>
+            <span className={styles.openingStats}>12 games · 58% score</span>
+            <span className={styles.openingLine}>1.d4 Nf6 2.c4 e6 3.Nf3 b6</span>
+            <span className={styles.openingPlan}>Plan: pressure e4 and the long diagonal.</span>
+        </div>
     }
 ];
 
@@ -127,7 +152,8 @@ export default function HomePage() {
 
                     <div className={styles.actions}>
                         <Link className={styles.primary} to="/analysis">
-                            Analyse a game <span aria-hidden="true">→</span>
+                            Analyse a game
+                            <ArrowRight size={16} aria-hidden="true"/>
                         </Link>
                         <a
                             className={styles.secondary}
@@ -135,7 +161,8 @@ export default function HomePage() {
                             target="_blank"
                             rel="noreferrer"
                         >
-                            View source <span aria-hidden="true">↗</span>
+                            View source
+                            <ArrowUpRight size={16} aria-hidden="true"/>
                         </a>
                     </div>
 
@@ -186,10 +213,8 @@ export default function HomePage() {
                     <div className={styles.howGrid}>
                         <Reveal>
                             <div>
-                                <span className={styles.sectionLabelDark}>How it works</span>
                                 <h2 className={styles.howTitle}>
-                                    THREE STEPS.<br/>
-                                    NO MYSTERY.
+                                    ANALYZE YOUR GAMES
                                 </h2>
 
                                 <ol className={styles.steps}>
@@ -249,7 +274,8 @@ export default function HomePage() {
                         </h2>
                         <div className={styles.actions}>
                             <Link className={styles.primaryLight} to="/analysis">
-                                Open the board <span aria-hidden="true">→</span>
+                                Open the board
+                                <ArrowRight size={16} aria-hidden="true"/>
                             </Link>
                             <a
                                 className={styles.secondaryDark}
@@ -257,7 +283,8 @@ export default function HomePage() {
                                 target="_blank"
                                 rel="noreferrer"
                             >
-                                Star on GitHub <span aria-hidden="true">↗</span>
+                                <Star size={16} aria-hidden="true"/>
+                                Star on GitHub
                             </a>
                         </div>
                         <p className={styles.finalNote}>
@@ -272,7 +299,10 @@ export default function HomePage() {
         <footer className={styles.footer}>
             <span>CHESSASSIST © 2026</span>
             <span>Built in the open</span>
-            <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub ↗</a>
+            <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+                GitHub
+                <ExternalLink size={11} aria-hidden="true"/>
+            </a>
         </footer>
 
         <button
@@ -282,7 +312,11 @@ export default function HomePage() {
             aria-label="Back to top"
             title="Back to top"
         >
-            <span className={styles.topArrow} aria-hidden="true">↑</span>
+            <ArrowUp
+                className={styles.topArrow}
+                size={16}
+                aria-hidden="true"
+            />
             <span>Back to top</span>
         </button>
     </div>;

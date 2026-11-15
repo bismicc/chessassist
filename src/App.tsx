@@ -15,19 +15,24 @@ import useEngine from "./hooks/useEngine";
 import useGameAnalysis from "./hooks/useGameAnalysis";
 
 import useSettingsStore from "./stores/SettingsStore";
+import useTrainingStore from "./stores/TrainingStore";
 
 import { getPlayers, parsePgn, samplePgn } from "./lib/pgn";
+import { buildTrainingGame, getTrainingGameId } from "./lib/weaknesses";
 import { parseUci, toUci } from "./lib/chess";
 import { getTerminalEvaluation } from "./lib/evaluation";
 import {
     getOpeningContext, getOpeningEco, getOpeningName
 } from "./lib/openings";
 import { playMoveSound } from "./lib/sounds";
-import { EngineLine, Evaluation, GameData, Position } from "./types";
+import {
+    EngineLine, Evaluation, GameData, GameVariation, Position
+} from "./types";
 
 import * as styles from "./App.module.css";
 
 interface Variation {
+    id?: string;
     rootPly: number;
     positions: Position[];
     index: number;
@@ -45,12 +50,18 @@ function App() {
 
     const playbackTimer = useRef<number>();
     const playbackRun = useRef(0);
+    const recordedGame = useRef("");
 
     const { engineRef, error } = useEngine();
     const boardSize = useBoardSize();
 
     const settings = useSettingsStore(state => state.settings);
     const setSettings = useSettingsStore(state => state.setSettings);
+    const playerName = useTrainingStore(state => state.playerName);
+    const recordGame = useTrainingStore(state => state.recordGame);
+    const trainingSaved = useTrainingStore(state => (
+        state.games.some(item => item.id == getTrainingGameId(game))
+    ));
 
     const {
         analysing, progress, storedEvaluations, classifications, bestMoves,
@@ -60,6 +71,24 @@ function App() {
         positions: game.positions,
         settings
     });
+
+    useEffect(() => {
+        if (game.positions.length < 2) return;
+        if (classifications.length != game.positions.length) return;
+
+        const key = getTrainingGameId(game);
+        if (recordedGame.current == key) return;
+
+        const training = buildTrainingGame(
+            game,
+            classifications,
+            bestMoves,
+            playerName
+        );
+
+        recordGame(training.game, training.contributions);
+        recordedGame.current = key;
+    }, [ game, classifications, bestMoves, playerName, recordGame ]);
 
     const basePosition = game.positions[Math.min(currentPly, game.positions.length - 1)];
     const variationIndex = variation?.index ?? 0;
@@ -85,7 +114,10 @@ function App() {
 
     const currentClassification = variation
         ? undefined
-        : classifications[currentPly];
+        : classifications[currentPly] ?? (position.annotation
+            ? { classification: position.annotation, pointLoss: 0 }
+            : undefined
+        );
 
     const history = useMemo(() => {
         const rootPly = variation?.rootPly ?? currentPly;
@@ -115,6 +147,21 @@ function App() {
             ]
             : game.positions.slice(0, currentPly + 1)
     ), [ game.positions, currentPly, variation ]);
+
+    const clocks = useMemo(() => {
+        let whiteClock: string | undefined;
+        let blackClock: string | undefined;
+
+        for (let index = linePositions.length - 1; index >= 1; index--) {
+            const item = linePositions[index];
+
+            if (!item.clock) continue;
+            if (item.colour == "w" && !whiteClock) whiteClock = item.clock;
+            if (item.colour == "b" && !blackClock) blackClock = item.clock;
+        }
+
+        return { white: whiteClock, black: blackClock };
+    }, [ linePositions ]);
 
     const openingWithHistory = useMemo(() => {
         if (opening.name) return opening;
@@ -252,6 +299,17 @@ function App() {
         setCurrentPly(Math.max(0, Math.min(game.positions.length - 1, ply)));
     }
 
+    function selectVariation(item: GameVariation, index: number) {
+        stopPlayback();
+        setCurrentPly(item.rootPly);
+        setVariation({
+            id: item.id,
+            rootPly: item.rootPly,
+            positions: item.positions,
+            index: Math.max(0, Math.min(item.positions.length, index))
+        });
+    }
+
     function goBack() {
         stopPlayback();
 
@@ -329,6 +387,14 @@ function App() {
     function playMove(move: Move) {
         stopPlayback();
         playMoveSound(move);
+
+        const next = game.positions[currentPly + 1];
+
+        if (!variation && next?.uci == toUci(move)) {
+            setCurrentPly(currentPly + 1);
+            return;
+        }
+
         appendMove(move);
     }
 
@@ -355,7 +421,9 @@ function App() {
         }
     }
 
-    function playLine(startPly: number | undefined, moves: string[]) {
+    function playLine(
+        startPly: number | undefined, moves: string[], comment?: string
+    ) {
         if (!moves.length) return;
 
         stopPlayback();
@@ -459,6 +527,18 @@ function App() {
 
         if (!built) return;
 
+        const isMainline = rootPly + built.length <= last
+            && built.every((move, index) => (
+                game.positions[rootPly + 1 + index]?.uci == toUci(move)
+            ));
+
+        if (isMainline) {
+            stopPlayback();
+            setVariation(undefined);
+            setCurrentPly(rootPly + built.length);
+            return;
+        }
+
         const entries = built.map(move => ({
             move,
             position: toPosition(move)
@@ -468,9 +548,31 @@ function App() {
             ...entries.map(entry => entry.position)
         ];
         const startIndex = basePositions.length;
+        const text = comment
+            ?.replace(/\[\[[^\]]+\]\]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+        const id = `ai-${rootPly}-${allPositions
+            .map(position => position.uci ?? position.san ?? "")
+            .join("-")
+        }`;
+        const stored = {
+            id,
+            rootPly,
+            positions: allPositions,
+            comment: text || "AI suggested line"
+        };
 
+        setGame(current => current.variations?.some(item => item.id == id)
+            ? current
+            : {
+                ...current,
+                variations: [ ...(current.variations ?? []), stored ]
+            }
+        );
         setCurrentPly(rootPly);
         setVariation({
+            id,
             rootPly,
             positions: allPositions,
             index: startIndex
@@ -500,7 +602,7 @@ function App() {
         <FloatingCat/>
 
         <div className={styles.appShell}>
-            <SiteHeader compact variant="dark"/>
+            <SiteHeader variant="dark"/>
 
             <div className={styles.app}>
             <main className={styles.boardColumn}>
@@ -508,6 +610,8 @@ function App() {
                     position={position}
                     white={players.white}
                     black={players.black}
+                    whiteClock={clocks.white}
+                    blackClock={clocks.black}
                     flipped={flipped}
                     evaluation={evaluation}
                     classification={currentClassification}
@@ -528,10 +632,10 @@ function App() {
                     error={error}
                     opening={openingWithHistory}
                     gameOver={gameOver}
-                    variationMoves={variation?.positions
-                        .slice(0, variation.index)
-                        .map(item => item.san ?? "") ?? []}
-                    variationDepth={variation?.index}
+                    variations={game.variations ?? []}
+                    activeVariationId={variation?.id}
+                    activeVariationIndex={variation?.index}
+                    onSelectVariation={selectVariation}
                     onImport={() => setShowImport(true)}
                     onSettings={() => setShowSettings(true)}
                     onFlip={() => setFlipped(value => !value)}
@@ -544,9 +648,9 @@ function App() {
                     onSelectPly={selectPly}
                     onPlayBookMove={playBookMove}
                     onPlayLine={playEngineLine}
-                    onExitVariation={() => setVariation(undefined)}
                     onAnalyseGame={analyseGame}
                     onStopAnalysis={stopAnalysis}
+                    trainingSaved={trainingSaved}
                 />
             </div>
 

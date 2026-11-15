@@ -10,8 +10,10 @@
     },
     "dependencies": {
         "chess.js": "^1.4.0",
+        "lucide-react": "^1.73.0",
         "react": "^18.3.1",
         "react-chessboard": "^4.7.2",
+        "react-dnd-touch-backend": "^16.0.1",
         "react-dom": "^18.3.1",
         "react-router-dom": "^6.30.1",
         "stockfish": "17.1.0",

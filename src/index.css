@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --paper: #e9edf1;
     --ink: #121314;
     --panel: #1c1d1f;
@@ -14,6 +14,10 @@
     --font-display: "Tiny5 Duo", "Geist Pixel", "Arial Narrow", sans-serif;
     --font-body: "DM Sans", system-ui, sans-serif;
     --font-mono: "Silkscreen", ui-monospace, monospace;
+    --dot-light: rgba(18, 19, 20, 0.13);
+    --dot-dark: rgba(255, 255, 255, 0.075);
+    --cursor-grab: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2218%22%20height%3D%2218%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cpath%20d%3D%22M288%2032c0-17.7-14.3-32-32-32s-32%2014.3-32%2032V240c0%208.8-7.2%2016-16%2016s-16-7.2-16-16V64c0-17.7-14.3-32-32-32s-32%2014.3-32%2032V336c0%201.5%200%203.1%20.1%204.6L67.6%20283c-16-15.2-41.3-14.6-56.6%201.4s-14.6%2041.3%201.4%2056.6L124.8%20448c43.1%2041.1%20100.4%2064%20160%2064H304c97.2%200%20176-78.8%20176-176V128c0-17.7-14.3-32-32-32s-32%2014.3-32%2032V240c0%208.8-7.2%2016-16%2016s-16-7.2-16-16V64c0-17.7-14.3-32-32-32s-32%2014.3-32%2032V240c0%208.8-7.2%2016-16%2016s-16-7.2-16-16V32z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23000%22%20stroke-width%3D%2224%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 10 1, grab;
+    --cursor-grabbing: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2218%22%20viewBox%3D%220%200%20448%20512%22%3E%3Cpath%20d%3D%22M144%200C117.5%200%2096%2021.5%2096%2048V96v28.5V176c0%208.8-7.2%2016-16%2016s-16-7.2-16-16V149.3l-9%207.5C40.4%20169%2032%20187%2032%20206V244c0%2038%2016.9%2074%2046.1%2098.3L128%20384v96c0%2017.7%2014.3%2032%2032%2032H320c17.7%200%2032-14.3%2032-32V374.7c46.9-19%2080-65%2080-118.7V176%20160%20144c0-26.5-21.5-48-48-48c-12.4%200-23.6%204.7-32.1%2012.3C350%2083.5%20329.3%2064%20304%2064c-12.4%200-23.6%204.7-32.1%2012.3C270%2051.5%20249.3%2032%20224%2032c-12.4%200-23.6%204.7-32.1%2012.3C190%2019.5%20169.3%200%20144%200z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23000%22%20stroke-width%3D%2224%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 8 1, grabbing;
     color-scheme: light;
 }
 
@@ -29,7 +33,13 @@ body,
 
 body {
     margin: 0;
-    background: var(--paper);
+    background-color: var(--paper);
+    background-image: radial-gradient(
+        var(--dot-light) 1px,
+        transparent 1.2px
+    );
+    background-size: 14px 14px;
+    background-attachment: fixed;
     color: var(--ink);
     font-family: var(--font-body);
     font-size: 16px;
@@ -76,4 +86,36 @@ a {
 :focus-visible {
     outline: 2px solid var(--red);
     outline-offset: 2px;
+}
+
+[data-draggable="true"] {
+    user-select: none;
+}
+
+[data-draggable="true"] {
+    user-select: none;
+}
+
+[data-draggable="true"] [data-piece] {
+    -webkit-user-drag: none;
+    user-select: none;
+    outline: none !important;
+    cursor: var(--cursor-grab) !important;
+}
+
+[data-draggable="true"] [data-piece] * {
+    pointer-events: none;
+    user-select: none;
+    outline: none !important;
+    cursor: inherit !important;
+}
+
+[data-draggable="true"] [data-piece]:active,
+[data-draggable="true"] [data-piece]:active * {
+    cursor: var(--cursor-grabbing) !important;
+}
+
+body[data-dragging-piece="true"],
+body[data-dragging-piece="true"] * {
+    cursor: var(--cursor-grabbing) !important;
 }

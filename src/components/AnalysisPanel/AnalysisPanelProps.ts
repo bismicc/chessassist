@@ -1,5 +1,5 @@
 import {
-    EngineLine, EngineSettings, GameData, MoveClassification
+    EngineLine, EngineSettings, GameData, GameVariation, MoveClassification
 } from "../../types";
 import { OpeningContext } from "../../lib/openings";
 
@@ -14,8 +14,11 @@ export default interface AnalysisPanelProps {
     analysing: boolean;
     progress: number;
     error: string;
-    variationMoves: string[];
-    variationDepth?: number;
+    trainingSaved: boolean;
+    variations: GameVariation[];
+    activeVariationId?: string;
+    activeVariationIndex?: number;
+    onSelectVariation: (variation: GameVariation, index: number) => void;
     onImport: () => void;
     onSettings: () => void;
     onFlip: () => void;
@@ -28,7 +31,6 @@ export default interface AnalysisPanelProps {
     onSelectPly: (ply: number) => void;
     onPlayBookMove: (san: string) => void;
     onPlayLine: (line: EngineLine) => void;
-    onExitVariation: () => void;
     onAnalyseGame: () => void;
     onStopAnalysis: () => void;
 }

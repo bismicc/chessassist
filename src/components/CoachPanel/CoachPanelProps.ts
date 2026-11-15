@@ -18,5 +18,7 @@ export default interface CoachPanelProps {
     progress: number;
     onAnalyseGame: () => void;
     onStopAnalysis: () => void;
-    onPlayLine: (startPly: number | undefined, moves: string[]) => void;
+    onPlayLine: (
+        startPly: number | undefined, moves: string[], comment?: string
+    ) => void;
 }

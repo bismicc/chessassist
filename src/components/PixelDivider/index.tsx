@@ -5,7 +5,12 @@ import PixelDividerProps from "./PixelDividerProps";
 import * as styles from "./PixelDivider.module.css";
 
 const CELL = 9;
+const DOT_GAP = 14;
+const DOT_RADIUS = 1;
 const CHANGE_CHANCE = 0.16;
+const LIGHT = "#e9edf1";
+const LIGHT_DOT = "rgba(18, 19, 20, 0.13)";
+const DARK_DOT = "rgba(255, 255, 255, 0.075)";
 
 export default function PixelDivider({
     colour, flip = false
@@ -70,7 +75,10 @@ export default function PixelDivider({
         }
 
         function render() {
-            ctx.fillStyle = "#e9edf1";
+            const rect = canvas.getBoundingClientRect();
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = LIGHT;
             ctx.fillRect(0, 0, width, height);
             ctx.fillStyle = colour;
 
@@ -84,6 +92,22 @@ export default function PixelDivider({
                         CELL,
                         CELL
                     );
+                }
+            }
+
+            const offsetX = (DOT_GAP / 2 - rect.left % DOT_GAP + DOT_GAP) % DOT_GAP;
+            const offsetY = (DOT_GAP / 2 - rect.top % DOT_GAP + DOT_GAP) % DOT_GAP;
+
+            for (let y = offsetY; y < height; y += DOT_GAP) {
+                for (let x = offsetX; x < width; x += DOT_GAP) {
+                    const column = Math.min(columns - 1, Math.floor(x / CELL));
+                    const row = Math.min(rows - 1, Math.floor(y / CELL));
+                    const dark = cells[row * columns + column] == 1;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, DOT_RADIUS, 0, Math.PI * 2);
+                    ctx.fillStyle = dark ? DARK_DOT : LIGHT_DOT;
+                    ctx.fill();
                 }
             }
         }
@@ -113,11 +137,24 @@ export default function PixelDivider({
             build();
             render();
         });
+        let frame = 0;
+
+        function onScroll() {
+            if (frame) return;
+
+            frame = window.requestAnimationFrame(() => {
+                frame = 0;
+                render();
+            });
+        }
 
         observer.observe(canvas);
+        window.addEventListener("scroll", onScroll, { passive: true });
 
         return () => {
             window.clearInterval(timer);
+            window.cancelAnimationFrame(frame);
+            window.removeEventListener("scroll", onScroll);
             observer.disconnect();
         };
     }, [ colour, flip ]);

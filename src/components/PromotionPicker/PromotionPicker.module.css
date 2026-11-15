@@ -1,0 +1,38 @@
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(19, 20, 21, 0.72);
+    z-index: 30;
+}
+
+.picker {
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    border: 1px solid #34373b;
+    background: #1c1d1f;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.35);
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border: 1px solid transparent;
+    background: #24262a;
+    color: #e9edf1;
+    font-family: var(--font-body);
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.option:hover {
+    border-color: #eb4b4b;
+    background: #2f3236;
+}

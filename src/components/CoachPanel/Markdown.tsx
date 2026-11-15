@@ -7,7 +7,10 @@ const linePattern = /\[\[([^\]]+)\]\]/g;
 function renderLines(
     text: string,
     key: string,
-    onLine?: (startPly: number | undefined, moves: string[]) => void
+    onLine?: (
+        startPly: number | undefined, moves: string[], comment?: string
+    ) => void,
+    comment?: string
 ): ReactNode[] {
     if (!onLine) return [ text ];
 
@@ -38,7 +41,7 @@ function renderLines(
                     ? `Play ${moves.join(" ")} from ply ${startPly}`
                     : `Play ${moves.join(" ")}`
                 }
-                onClick={() => onLine(startPly, moves)}
+                onClick={() => onLine(startPly, moves, comment)}
             >
                 {moves.map((move, moveIndex) => <span
                     className={styles.moveChip}
@@ -60,14 +63,19 @@ function renderLines(
 function renderInline(
     text: string,
     key: string,
-    onLine?: (startPly: number | undefined, moves: string[]) => void
+    onLine?: (
+        startPly: number | undefined, moves: string[], comment?: string
+    ) => void,
+    comment = text
 ): ReactNode[] {
     const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
 
     return parts.map((part, index) => {
         if (part.startsWith("**") && part.endsWith("**")) {
             return <strong key={`${key}-${index}`}>
-                {renderLines(part.slice(2, -2), `${key}-${index}`, onLine)}
+                {renderLines(
+                    part.slice(2, -2), `${key}-${index}`, onLine, comment
+                )}
             </strong>;
         }
 
@@ -76,7 +84,7 @@ function renderInline(
         }
 
         return <span key={`${key}-${index}`}>
-            {renderLines(part, `${key}-${index}`, onLine)}
+            {renderLines(part, `${key}-${index}`, onLine, comment)}
         </span>;
     });
 }
@@ -85,7 +93,9 @@ export default function Markdown({
     text, onLine
 }: {
     text: string;
-    onLine?: (startPly: number | undefined, moves: string[]) => void;
+    onLine?: (
+        startPly: number | undefined, moves: string[], comment?: string
+    ) => void;
 }) {
     const lines = text.split("\n");
     const blocks: ReactNode[] = [];

@@ -184,7 +184,8 @@ function CoachPanel({
                     {[
                         "Why was my last move bad?",
                         "What is the plan in this position?",
-                        "Show me a better move."
+                        "What are my biggest weaknesses?",
+                        "Build me a training plan."
                     ].map(prompt => <button
                         key={prompt}
                         className={styles.suggestion}
