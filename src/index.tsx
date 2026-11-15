@@ -1,5 +1,7 @@
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {
+    BrowserRouter, HashRouter, Route, Routes
+} from "react-router-dom";
 
 import App from "./App";
 import PageTransition from "./components/PageTransition";
@@ -11,12 +13,16 @@ import TrainingPage from "./pages/TrainingPage";
 
 import "./index.css";
 
+const pages = location.hostname.endsWith("github.io")
+    || location.pathname.startsWith("/chessassist");
+const Router = pages ? HashRouter : BrowserRouter;
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
-    <BrowserRouter future={{
+    <Router future={{
         v7_startTransition: true,
         v7_relativeSplatPath: true
     }}>
-        <PageTransition/>
+        {!pages && <PageTransition/>}
         <Routes>
             <Route path="/" element={<HomePage/>} />
             <Route path="/analysis" element={<App/>} />
@@ -26,5 +32,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/glossary" element={<GlossaryPage/>} />
             <Route path="*" element={<HomePage/>} />
         </Routes>
-    </BrowserRouter>
+    </Router>
 );

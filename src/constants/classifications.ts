@@ -15,13 +15,13 @@ export const classificationColours: Record<Classification, string> = {
 };
 
 export const classificationImages: Record<Classification, string> = {
-    book: "/img/classifications/theory.png",
-    best: "/img/classifications/best.png",
-    great: "/img/classifications/critical.png",
-    brilliant: "/img/classifications/brilliant.png",
-    good: "/img/classifications/excellent.png",
-    mistake: "/img/classifications/mistake.png",
-    blunder: "/img/classifications/blunder.png"
+    book: "img/classifications/theory.png",
+    best: "img/classifications/best.png",
+    great: "img/classifications/critical.png",
+    brilliant: "img/classifications/brilliant.png",
+    good: "img/classifications/excellent.png",
+    mistake: "img/classifications/mistake.png",
+    blunder: "img/classifications/blunder.png"
 };
 
 export const classificationLabels: Record<Classification, string> = {

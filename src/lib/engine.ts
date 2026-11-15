@@ -30,7 +30,7 @@ export default class Engine {
 
     constructor(onError?: (message: string) => void) {
         this.onError = onError;
-        this.worker = new Worker("/engines/stockfish-17.1-lite-single-03e3232.js");
+        this.worker = new Worker("engines/stockfish-17.1-lite-single-03e3232.js");
 
         this.worker.addEventListener("message", this.handleMessage);
         this.worker.addEventListener("error", this.handleWorkerError);

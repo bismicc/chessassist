@@ -108,6 +108,22 @@ Imported games can then be analysed in bulk with local Stockfish. Choose the dep
 
 Every AI in the app is given the same chess glossary: the coach, the game reports, the weakness review and the opening lesson. The coach can also call `get_tactic_definition` for any term. The full glossary is browsable at `/glossary`.
 
+## Deploy on GitHub Pages
+
+The app is a static browser bundle, so it can be hosted for free on GitHub Pages.
+
+1. Push to `main`.
+2. Open **Settings → Pages** and set **Build and deployment → Source** to **GitHub Actions**.
+3. Run the **Deploy to GitHub Pages** workflow, or push another commit.
+
+The site will be available at:
+
+```text
+https://<username>.github.io/chessassist/
+```
+
+GitHub Pages uses hash routes (`/chessassist/#/analysis`) so direct links work without server rewrites. The animated page transition is disabled there because it relies on the History API; the local development build keeps it.
+
 ## Data and classification
 
 Opening names and book positions come from WintrChess's `openings.json`.

@@ -34,7 +34,7 @@ export async function loadPuzzles() {
     if (cache) return cache;
     if (pending) return pending;
 
-    pending = fetch("/puzzles/puzzles.json")
+    pending = fetch("puzzles/puzzles.json")
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Could not load puzzles (${response.status})`);

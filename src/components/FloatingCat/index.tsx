@@ -48,7 +48,7 @@ function FloatingCat() {
     return <img
         ref={imageRef}
         className={styles.cat}
-        src="/assets/cat.gif"
+        src="assets/cat.gif"
         alt=""
         aria-hidden="true"
     />;

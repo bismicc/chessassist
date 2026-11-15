@@ -1,12 +1,12 @@
 import { Chess, Move } from "chess.js";
 
 const soundFiles = {
-    move: "/audio/move.mp3",
-    capture: "/audio/capture.mp3",
-    castle: "/audio/castle.mp3",
-    check: "/audio/check.mp3",
-    promote: "/audio/promote.mp3",
-    gameEnd: "/audio/gameend.mp3"
+    move: "audio/move.mp3",
+    capture: "audio/capture.mp3",
+    castle: "audio/castle.mp3",
+    check: "audio/check.mp3",
+    promote: "audio/promote.mp3",
+    gameEnd: "audio/gameend.mp3"
 };
 
 type SoundName = keyof typeof soundFiles;
