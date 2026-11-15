@@ -22,7 +22,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         v7_startTransition: true,
         v7_relativeSplatPath: true
     }}>
-        {!pages && <PageTransition/>}
+        <PageTransition/>
         <Routes>
             <Route path="/" element={<HomePage/>} />
             <Route path="/analysis" element={<App/>} />

@@ -52,6 +52,12 @@ function isTrainingRoute(pathname: string) {
     return TRAINING_ROUTES.includes(clean);
 }
 
+function getRoute(url: URL) {
+    if (!url.hash.startsWith("#/")) return url.pathname;
+
+    return url.hash.slice(1).split("?")[0] || "/";
+}
+
 function easeInOut(value: number) {
     return value < 0.5
         ? 4 * value * value * value
@@ -110,17 +116,23 @@ export default function PageTransition() {
             if (
                 url.pathname == window.location.pathname
                 && url.search == window.location.search
+                && url.hash == window.location.hash
             ) return;
+
+            const hashMode = url.hash.startsWith("#/");
+
             if (
-                isTrainingRoute(url.pathname)
-                && isTrainingRoute(window.location.pathname)
+                isTrainingRoute(getRoute(url))
+                && isTrainingRoute(getRoute(new URL(window.location.href)))
             ) return;
 
             event.preventDefault();
 
             if (busy.current) return;
 
-            const to = url.pathname + url.search + url.hash;
+            const to = hashMode
+                ? url.hash.slice(1) || "/"
+                : url.pathname + url.search + url.hash;
             const source = document.getElementById("root");
             if (!source) return;
 

@@ -122,7 +122,7 @@ The site will be available at:
 https://<username>.github.io/chessassist/
 ```
 
-GitHub Pages uses hash routes (`/chessassist/#/analysis`) so direct links work without server rewrites. The animated page transition is disabled there because it relies on the History API; the local development build keeps it.
+GitHub Pages uses hash routes (`/chessassist/#/analysis`) so direct links work without server rewrites. The animated page transition runs on GitHub Pages as well.
 
 To publish a new build:
 
